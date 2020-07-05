@@ -16,6 +16,12 @@
     <Filter Include="Header Files\res">
       <UniqueIdentifier>{31c29d84-497c-4106-9f1a-f4f347409c19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\UIElement">
+      <UniqueIdentifier>{ff62973c-8a71-472b-9184-293e56af16b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UIElement">
+      <UniqueIdentifier>{28924261-1afd-4ddd-b50d-c897e958f05d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\framework.h">
@@ -26,6 +32,15 @@
     </ClInclude>
     <ClInclude Include="..\src\res\Resource.h">
       <Filter>Header Files\res</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CalculatorApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UIElement\Button.h">
+      <Filter>Header Files\UIElement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UIElement\UIElement.h">
+      <Filter>Header Files\UIElement</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +59,15 @@
   <ItemGroup>
     <ClCompile Include="..\src\WinMain.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CalculatorApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UIElement\Button.cpp">
+      <Filter>Source Files\UIElement</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UIElement\UIElement.cpp">
+      <Filter>Source Files\UIElement</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

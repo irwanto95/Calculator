@@ -91,7 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\extern\Singleton\source\include;..\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,7 +107,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\extern\Singleton\source\include;..\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -125,7 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\extern\Singleton\source\include;..\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,7 +145,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\extern\Singleton\source\include;..\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,12 +155,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\CalculatorApp.cpp" />
+    <ClCompile Include="..\src\UIElement\Button.cpp" />
+    <ClCompile Include="..\src\UIElement\UIElement.cpp" />
     <ClCompile Include="..\src\WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\CalculatorApp.h" />
     <ClInclude Include="..\src\framework.h" />
     <ClInclude Include="..\src\res\Resource.h" />
     <ClInclude Include="..\src\targetver.h" />
+    <ClInclude Include="..\src\UIElement\Button.h" />
+    <ClInclude Include="..\src\UIElement\UIElement.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\res\Calculator.ico" />
