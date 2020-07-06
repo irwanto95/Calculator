@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Calculator", "Calculator.vcxproj", "{865BB9AA-DEDB-402F-9AE2-054FF37D0A51}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Singleton", "..\extern\Singleton\source\prj\Singleton.vcxproj", "{447F6D9E-C0F5-4EAF-BDD6-41323001F67A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mfUtils", "..\extern\mufise\mfUtils\prj\mfUtils.vcxproj", "{447F6D9E-C0F5-4EAF-BDD6-41323001F67A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

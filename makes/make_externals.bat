@@ -4,25 +4,21 @@ echo ===========================================================
 echo Make externals
 echo ===========================================================
 
-set EXTERNAL_TAG = "externals.txt"
-set DEST_FOLDER = %~dp0\..\extern
-set CONTAINER = Singleton
-set URL = https://github.com/irwanto95/Singleton.git/trunk
+set DEST_FOLDER=%~dp0\..\extern
 
-echo Dest		: %DEST_FOLDER%
-echo Container	: %CONTAINER%
-echo url		: %URL%
+echo Making externals .. mufise
+echo .
+set CONTAINER=mufise
+set TAG=%CONTAINER%.tag
+set URL=https://github.com/irwanto95/mufise.git/trunk/mufise
 
-if  exist %DEST_FOLDER%\%EXTERNAL_TAG% (
-	echo .
-	echo Externals already sets
-	goto :end
+if  not exist %DEST_FOLDER%\%TAG% (
+	break > %DEST_FOLDER%\%TAG%
+
+	svn propset svn:externals "%CONTAINER% %URL%" %DEST_FOLDER%
+	svn update %DEST_FOLDER%
 )
 
-break > %DEST_FOLDER%\%EXTERNAL_TAG%
 
-svn propset svn:externals "%CONTAINER% %URL%" %DEST_FOLDER%
-svn update %DEST_FOLDER%
-
-:end
 echo .
+echo Making externals all done
