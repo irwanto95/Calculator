@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{76fdac65-03de-491d-9632-e0d1b196ab61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{3c08ca21-3dfe-409e-9db7-1626a190c324}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{7c76087f-2fa9-48a0-a676-ccdebaafceeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Dialog">
+      <UniqueIdentifier>{19fc376c-2700-46e9-b7f7-51ccb3763839}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Dialog">
+      <UniqueIdentifier>{c400ed1d-ab84-4f8f-ad64-6d8e84d909df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\res">
+      <UniqueIdentifier>{43fb2143-2234-4ee2-871e-40ceb996dbce}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\source\Dialog\CalculatorDlg.h">
+      <Filter>include\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\framework.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Calculator.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pch.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\resource\Resource.h">
+      <Filter>resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\resource\targetver.h">
+      <Filter>resource</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\Dialog\CalculatorDlg.cpp">
+      <Filter>source\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Calculator.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pch.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\resource\Calculator.rc">
+      <Filter>resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\resource\res\Calculator.ico">
+      <Filter>resource\res</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\resource\res\Calculator.rc2">
+      <Filter>resource\res</Filter>
+    </None>
+  </ItemGroup>
+</Project>
