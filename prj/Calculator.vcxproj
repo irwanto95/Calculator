@@ -29,7 +29,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\resource\Resource.h" />
+    <ClInclude Include="..\resource\resource.h" />
     <ClInclude Include="..\resource\targetver.h" />
     <ClInclude Include="..\source\Calculator.h" />
     <ClInclude Include="..\source\Dialog\CalculatorDlg.h" />

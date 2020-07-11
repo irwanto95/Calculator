@@ -33,10 +33,10 @@
     <ClInclude Include="..\source\pch.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\resource\Resource.h">
+    <ClInclude Include="..\resource\targetver.h">
       <Filter>resource</Filter>
     </ClInclude>
-    <ClInclude Include="..\resource\targetver.h">
+    <ClInclude Include="..\resource\resource.h">
       <Filter>resource</Filter>
     </ClInclude>
   </ItemGroup>
