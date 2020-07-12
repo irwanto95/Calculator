@@ -6,6 +6,7 @@
 #include "framework.h"
 #include "Calculator.h"
 #include "CalculatorDlg.h"
+#include "Element/InputFields.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -54,17 +55,39 @@ CCalculatorDlg::CCalculatorDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_CALCULATOR_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_outputText = m_output.GetText();
 }
 
 void CCalculatorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_OUTPUT, m_outputText);
 }
 
 BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_NUM_1, &CCalculatorDlg::OnBnClickedNum1)
+	ON_BN_CLICKED(IDC_NUM_2, &CCalculatorDlg::OnBnClickedNum2)
+	ON_BN_CLICKED(IDC_NUM_3, &CCalculatorDlg::OnBnClickedNum3)
+	ON_BN_CLICKED(IDC_NUM_4, &CCalculatorDlg::OnBnClickedNum4)
+	ON_BN_CLICKED(IDC_NUM_5, &CCalculatorDlg::OnBnClickedNum5)
+	ON_BN_CLICKED(IDC_NUM_6, &CCalculatorDlg::OnBnClickedNum6)
+	ON_BN_CLICKED(IDC_NUM_7, &CCalculatorDlg::OnBnClickedNum7)
+	ON_BN_CLICKED(IDC_NUM_8, &CCalculatorDlg::OnBnClickedNum8)
+	ON_BN_CLICKED(IDC_NUM_9, &CCalculatorDlg::OnBnClickedNum9)
+	ON_BN_CLICKED(IDC_NUM_0, &CCalculatorDlg::OnBnClickedNum0)
+	ON_BN_CLICKED(IDC_NUM_000, &CCalculatorDlg::OnBnClickedNum000)
+	ON_BN_CLICKED(IDC_NUM_POINT, &CCalculatorDlg::OnBnClickedNumPoint)
+	ON_BN_CLICKED(IDC_SIGN, &CCalculatorDlg::OnBnClickedSign)
+	ON_BN_CLICKED(IDC_CLEAR, &CCalculatorDlg::OnBnClickedClear)
+	ON_BN_CLICKED(IDC_DELETE, &CCalculatorDlg::OnBnClickedDelete)
+	ON_BN_CLICKED(IDC_MULTIPLICATION, &CCalculatorDlg::OnBnClickedMultiplication)
+	ON_BN_CLICKED(IDC_DIVISION, &CCalculatorDlg::OnBnClickedDivision)
+	ON_BN_CLICKED(IDC_ADDITION, &CCalculatorDlg::OnBnClickedAddition)
+	ON_BN_CLICKED(IDC_SUBSTRACTION, &CCalculatorDlg::OnBnClickedSubstraction)
+	ON_BN_CLICKED(IDC_RESULT, &CCalculatorDlg::OnBnClickedResult)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +176,161 @@ HCURSOR CCalculatorDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CCalculatorDlg::OnBnClickedNum1()
+{
+	m_output.AssignNumber(InputFields::Number_1);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNum2()
+{
+	m_output.AssignNumber(InputFields::Number_2);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNum3()
+{
+	m_output.AssignNumber(InputFields::Number_3);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNum4()
+{
+	m_output.AssignNumber(InputFields::Number_4);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNum5()
+{
+	m_output.AssignNumber(InputFields::Number_5);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNum6()
+{
+	m_output.AssignNumber(InputFields::Number_6);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNum7()
+{
+	m_output.AssignNumber(InputFields::Number_7);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNum8()
+{
+	m_output.AssignNumber(InputFields::Number_8);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNum9()
+{
+	m_output.AssignNumber(InputFields::Number_9);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNum0()
+{
+	m_output.AssignNumber(InputFields::Number_0);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNum000()
+{
+	m_output.AssignNumber(InputFields::Number_0);
+	m_output.AssignNumber(InputFields::Number_0);
+	m_output.AssignNumber(InputFields::Number_0);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedNumPoint()
+{
+	//m_output.AssignOperator(InputFields::Op_Point);
+	//m_outputText = m_output.GetText();
+	//UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedSign()
+{
+	//m_output.AssignOperator(InputFields::Op_Inverse);
+	//m_outputText = m_output.GetText();
+	//UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedClear()
+{
+	m_output.Clear();
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedDelete()
+{
+	// TODO: Add your control notification handler code here
+}
+
+
+void CCalculatorDlg::OnBnClickedMultiplication()
+{
+	m_output.AssignOperator(InputFields::Op_Multiplication);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedDivision()
+{
+	m_output.AssignOperator(InputFields::Op_Division);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedAddition()
+{
+	m_output.AssignOperator(InputFields::Op_Addition);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedSubstraction()
+{
+	m_output.AssignOperator(InputFields::Op_Substraction);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedResult()
+{
+	m_output.AssignOperator(InputFields::Op_Result);
+	m_outputText = m_output.GetText();
+	UpdateData(FALSE);
+}

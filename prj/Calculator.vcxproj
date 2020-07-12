@@ -21,6 +21,8 @@
   <ItemGroup>
     <ClCompile Include="..\source\Calculator.cpp" />
     <ClCompile Include="..\source\Dialog\CalculatorDlg.cpp" />
+    <ClCompile Include="..\source\Element\InputFields.cpp" />
+    <ClCompile Include="..\source\Element\OutputScreen.cpp" />
     <ClCompile Include="..\source\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -32,7 +34,10 @@
     <ClInclude Include="..\resource\resource.h" />
     <ClInclude Include="..\resource\targetver.h" />
     <ClInclude Include="..\source\Calculator.h" />
+    <ClInclude Include="..\source\Constants.hpp" />
     <ClInclude Include="..\source\Dialog\CalculatorDlg.h" />
+    <ClInclude Include="..\source\Element\InputFields.h" />
+    <ClInclude Include="..\source\Element\OutputScreen.h" />
     <ClInclude Include="..\source\framework.h" />
     <ClInclude Include="..\source\pch.h" />
   </ItemGroup>

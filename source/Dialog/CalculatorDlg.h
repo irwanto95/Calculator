@@ -1,9 +1,6 @@
-
-// CalculatorDlg.h : header file
-//
-
 #pragma once
 
+#include "Element/OutputScreen.h"
 
 // CCalculatorDlg dialog
 class CCalculatorDlg : public CDialogEx
@@ -20,6 +17,7 @@ public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 
+	afx_msg void OnBnClickedNum1();
 
 // Implementation
 protected:
@@ -31,4 +29,29 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+
+private:
+	// Show the output
+	OutputScreen m_output;
+	CString m_outputText;
+public:
+	afx_msg void OnBnClickedNum2();
+	afx_msg void OnBnClickedNum3();
+	afx_msg void OnBnClickedNum4();
+	afx_msg void OnBnClickedNum5();
+	afx_msg void OnBnClickedNum6();
+	afx_msg void OnBnClickedNum7();
+	afx_msg void OnBnClickedNum8();
+	afx_msg void OnBnClickedNum9();
+	afx_msg void OnBnClickedNum0();
+	afx_msg void OnBnClickedNum000();
+	afx_msg void OnBnClickedNumPoint();
+	afx_msg void OnBnClickedSign();
+	afx_msg void OnBnClickedClear();
+	afx_msg void OnBnClickedDelete();
+	afx_msg void OnBnClickedMultiplication();
+	afx_msg void OnBnClickedDivision();
+	afx_msg void OnBnClickedAddition();
+	afx_msg void OnBnClickedSubstraction();
+	afx_msg void OnBnClickedResult();
 };
