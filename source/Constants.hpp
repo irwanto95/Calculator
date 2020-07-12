@@ -15,7 +15,9 @@ const char k_number_7 = '7';
 const char k_number_8 = '8';
 const char k_number_9 = '9';
 
-const char k_sign_mulplication = 'x';
-const char k_sign_division = '/';
-const char k_sign_addition = '+';
-const char k_sign_substraction = '-';
+const char k_op_mulplication = 'x';
+const char k_op_division = '/';
+const char k_op_addition = '+';
+const char k_op_substraction = '-';
+const char k_op_point = '.';
+const char k_op_result = '=';

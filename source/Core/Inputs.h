@@ -1,7 +1,7 @@
-#ifndef CL_INPUT_FIELDS_H
-#define CL_INPUT_FIELDS_H
+#ifndef CL_INPUTS_H
+#define CL_INPUTS_H
 
-class InputFields
+class Inputs
 {
 public:
 	enum ENumber
@@ -22,10 +22,12 @@ public:
 	enum EOperator
 	{
 		Op_None = -1,
+
 		Op_Multiplication,
 		Op_Division,
 		Op_Addition,
 		Op_Substraction,
+
 		Op_Inverse,
 		Op_Point,
 		Op_Result,
@@ -33,8 +35,8 @@ public:
 	};
 
 public:
-	InputFields();
-	~InputFields();
+	Inputs() {};
+	~Inputs() {};
 };
 
-#endif // !CL_INPUT_FIELDS_H
+#endif // !CL_INPUTS_H
