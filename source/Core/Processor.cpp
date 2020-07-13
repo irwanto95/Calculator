@@ -15,41 +15,44 @@ Processor::~Processor()
 
 void Processor::AssignNumber(unum num)
 {
-	char firstArg;
-	m_text >> firstArg;
-
-	if (firstArg == k_number_0)
+	if (m_bNeedToInputFirstNumber)
 	{
-		m_text.str("");
+		ResetStream();
+		m_text.clear();
+		m_bNeedToInputFirstNumber = false;
 	}
 
-	m_text << num;
+	m_valueStr << num;
+	m_text += std::to_string(num);
+
+	m_bLastInputIsOperator = false;
 }
 
 void Processor::AssignOperator(snum op)
 {
 	if (op == Inputs::Op_Result)
 	{
-		ProcessResult();
-
-		m_text.str("");
-
-		if (m_bIsFloatingNumber)
+		if (m_bLastInputIsOperator)
 		{
-			m_text << m_fArg[0];
+			m_text.pop_back();
+			m_operator[m_argIdx - 1] = Inputs::Op_None;
 		}
 		else
 		{
-			m_text << m_iArg[0];
+			AssignStreamToValue();
 		}
 
+		ProcessResult();
+		AssignValueToStream();
+
 		m_bLastInputIsOperator = false;
+		m_bNeedToInputFirstNumber = true;
 	}
 	else if (op == Inputs::Op_Point)
 	{
 		if (!m_bIsFloatingNumber)
 		{
-			m_text << k_op_point;
+			m_valueStr << k_op_point;
 			m_bIsFloatingNumber = true;
 		}
 	}
@@ -58,63 +61,56 @@ void Processor::AssignOperator(snum op)
 	}
 	else
 	{
+		m_bNeedToInputFirstNumber = false;
+
 		if (m_bLastInputIsOperator)
 		{
-			std::string _s = m_text.str();
-			_s.pop_back();
-
-			m_text.str("");
-			m_text << _s;
-		}
-
-		if (m_bIsFloatingNumber)
-		{
-			m_text >> m_fArg[m_argIdx];
+			m_text.pop_back();
+			m_operator[--m_argIdx] = op;
 		}
 		else
 		{
-			m_text >> m_iArg[m_argIdx];
-		}
+			AssignStreamToValue();
 
-		m_operator[m_argIdx] = op;
+			m_operator[m_argIdx] = op;
 
-		if (m_argIdx >= OS_MAX_ARG_COUNT)
-		{
-			AssignOperator(Inputs::Op_Result);
+			if (m_argIdx >= OS_MAX_ARG_INDEX)
+			{
+				ProcessResult();
+				AssignValueToStream();
+				ResetStream();
+			}
 		}
 
 		switch (op)
 		{
 		case Inputs::Op_Multiplication:
-			m_text << k_op_mulplication;
+			m_text += k_op_mulplication;
 			break;
 		case Inputs::Op_Division:
-			m_text << k_op_division;
+			m_text += k_op_division;
 			break;
 		case Inputs::Op_Addition:
-			m_text << k_op_addition;
+			m_text += k_op_addition;
 			break;
 		case Inputs::Op_Substraction:
-			m_text << k_op_substraction;
+			m_text += k_op_substraction;
 			break;
 		default:
 			break;
 		}
 
-		char unused;
-		m_text >> unused;
-
-		m_argIdx++;
-
 		m_bLastInputIsOperator = true;
+		m_argIdx++;
 	}
 }
 
 void Processor::Clear()
 {
 	m_argIdx = 0;
-	m_text.str("");
-	m_text << k_number_0;
+	
+	ResetStream(true);
+	m_text = m_valueStr.str();
 
 	for (int i = 0; i < OS_MAX_ARG_COUNT; i++)
 	{
@@ -128,6 +124,7 @@ void Processor::Clear()
 
 	m_bIsFloatingNumber = false;
 	m_bLastInputIsOperator = false;
+	m_bNeedToInputFirstNumber = true;
 }
 
 bool Processor::IsHighPriority(snum op)
@@ -217,6 +214,45 @@ void Processor::ProcessResult()
 
 			m_argIdx--;
 		}
+	}
+}
+
+void Processor::AssignStreamToValue()
+{
+	if (m_bIsFloatingNumber)
+	{
+		m_valueStr >> m_fArg[m_argIdx];
+	}
+	else
+	{
+		m_valueStr >> m_iArg[m_argIdx];
+	}
+
+	ResetStream();
+}
+
+void Processor::AssignValueToStream()
+{
+	if (m_bIsFloatingNumber)
+	{
+		m_valueStr << m_fArg[0];
+	}
+	else
+	{
+		m_valueStr << m_iArg[0];
+	}
+
+	m_text = m_valueStr.str();
+}
+
+void Processor::ResetStream(bool addDefaultValue)
+{
+	m_valueStr.str("");
+	m_valueStr.clear();
+
+	if (addDefaultValue)
+	{
+		m_valueStr << k_number_0;
 	}
 }
 

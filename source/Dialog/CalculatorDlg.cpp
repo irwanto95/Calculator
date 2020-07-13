@@ -54,7 +54,7 @@ CCalculatorDlg::CCalculatorDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_CALCULATOR_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 }
 
 void CCalculatorDlg::DoDataExchange(CDataExchange* pDX)
@@ -178,7 +178,7 @@ HCURSOR CCalculatorDlg::OnQueryDragIcon()
 void CCalculatorDlg::OnBnClickedNum1()
 {
 	m_processor.AssignNumber(Inputs::Number_1);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -186,7 +186,7 @@ void CCalculatorDlg::OnBnClickedNum1()
 void CCalculatorDlg::OnBnClickedNum2()
 {
 	m_processor.AssignNumber(Inputs::Number_2);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -194,7 +194,7 @@ void CCalculatorDlg::OnBnClickedNum2()
 void CCalculatorDlg::OnBnClickedNum3()
 {
 	m_processor.AssignNumber(Inputs::Number_3);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -202,7 +202,7 @@ void CCalculatorDlg::OnBnClickedNum3()
 void CCalculatorDlg::OnBnClickedNum4()
 {
 	m_processor.AssignNumber(Inputs::Number_4);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -210,7 +210,7 @@ void CCalculatorDlg::OnBnClickedNum4()
 void CCalculatorDlg::OnBnClickedNum5()
 {
 	m_processor.AssignNumber(Inputs::Number_5);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -218,7 +218,7 @@ void CCalculatorDlg::OnBnClickedNum5()
 void CCalculatorDlg::OnBnClickedNum6()
 {
 	m_processor.AssignNumber(Inputs::Number_6);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -226,7 +226,7 @@ void CCalculatorDlg::OnBnClickedNum6()
 void CCalculatorDlg::OnBnClickedNum7()
 {
 	m_processor.AssignNumber(Inputs::Number_7);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -234,7 +234,7 @@ void CCalculatorDlg::OnBnClickedNum7()
 void CCalculatorDlg::OnBnClickedNum8()
 {
 	m_processor.AssignNumber(Inputs::Number_8);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -242,7 +242,7 @@ void CCalculatorDlg::OnBnClickedNum8()
 void CCalculatorDlg::OnBnClickedNum9()
 {
 	m_processor.AssignNumber(Inputs::Number_9);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -250,7 +250,7 @@ void CCalculatorDlg::OnBnClickedNum9()
 void CCalculatorDlg::OnBnClickedNum0()
 {
 	m_processor.AssignNumber(Inputs::Number_0);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -260,7 +260,7 @@ void CCalculatorDlg::OnBnClickedNum000()
 	m_processor.AssignNumber(Inputs::Number_0);
 	m_processor.AssignNumber(Inputs::Number_0);
 	m_processor.AssignNumber(Inputs::Number_0);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -268,7 +268,7 @@ void CCalculatorDlg::OnBnClickedNum000()
 void CCalculatorDlg::OnBnClickedNumPoint()
 {
 	//m_processor.AssignOperator(Inputs::Op_Point);
-	//m_outputText = m_processor.GetText().c_str();
+	//m_outputText = m_processor.GetTextC();
 	//UpdateData(FALSE);
 }
 
@@ -276,7 +276,7 @@ void CCalculatorDlg::OnBnClickedNumPoint()
 void CCalculatorDlg::OnBnClickedSign()
 {
 	//m_processor.AssignOperator(Inputs::Op_Inverse);
-	//m_outputText = m_processor.GetText().c_str();
+	//m_outputText = m_processor.GetTextC();
 	//UpdateData(FALSE);
 }
 
@@ -284,7 +284,7 @@ void CCalculatorDlg::OnBnClickedSign()
 void CCalculatorDlg::OnBnClickedClear()
 {
 	//m_processor.Clear();
-	//m_outputText = m_processor.GetText().c_str();
+	//m_outputText = m_processor.GetTextC();
 	//UpdateData(FALSE);
 }
 
@@ -298,7 +298,7 @@ void CCalculatorDlg::OnBnClickedDelete()
 void CCalculatorDlg::OnBnClickedMultiplication()
 {
 	m_processor.AssignOperator(Inputs::Op_Multiplication);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -306,7 +306,7 @@ void CCalculatorDlg::OnBnClickedMultiplication()
 void CCalculatorDlg::OnBnClickedDivision()
 {
 	m_processor.AssignOperator(Inputs::Op_Division);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -314,7 +314,7 @@ void CCalculatorDlg::OnBnClickedDivision()
 void CCalculatorDlg::OnBnClickedAddition()
 {
 	m_processor.AssignOperator(Inputs::Op_Addition);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -322,7 +322,7 @@ void CCalculatorDlg::OnBnClickedAddition()
 void CCalculatorDlg::OnBnClickedSubstraction()
 {
 	m_processor.AssignOperator(Inputs::Op_Substraction);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
 
@@ -330,6 +330,6 @@ void CCalculatorDlg::OnBnClickedSubstraction()
 void CCalculatorDlg::OnBnClickedResult()
 {
 	m_processor.AssignOperator(Inputs::Op_Result);
-	m_outputText = m_processor.GetText().c_str();
+	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }
