@@ -17,6 +17,16 @@ typedef int16_t	snum;
 
 class Processor
 {
+	enum Error
+	{
+		OPERATION_SUCESSFUL = 0,
+		OPERATION_EXCEPTION_DIV_ZERO = -1,
+		OPERATION_EXCEPTION_DIV_ZERO_INF = -2
+	};
+
+	const string k_exceptionMsgDivZero		= "Divided by Zero, result : undefinition";
+	const string k_exceptionMsgDivZeroInf	= "Zero divided by Zero, result : infinity";
+
 public:
 	Processor();
 	~Processor();
@@ -25,12 +35,13 @@ public:
 	void AssignOperator(snum op);
 	void Clear();
 
-	const std::string	GetText() { return m_text; }
-	const char*			GetTextC() { return m_text.c_str(); }
+	const string	GetText() { return m_text; }
+	const char*		GetTextC() { return m_text.c_str(); }
 
 private:
+	int	ProcessResult();
+
 	bool IsHighPriority(snum op);
-	void ProcessResult();
 	void AssignStreamToValue();
 	void AssignValueToStream();
 	void ResetStream(bool addDefaultValue = false);
@@ -42,8 +53,8 @@ private:
 		float	m_fArg[OS_MAX_ARG_COUNT];
 	};
 
-	std::stringstream	m_valueStr;
-	std::string			m_text;
+	stringstream	m_valueStr;
+	string			m_text;
 
 	bool m_bIsFloatingNumber;
 	bool m_bLastInputIsOperator;
@@ -51,6 +62,7 @@ private:
 
 	short	m_argIdx;
 	snum	m_operator[OS_MAX_ARG_COUNT];
+	int		m_lastError;
 };
 
 #endif // !CL_PROCESSOR_H

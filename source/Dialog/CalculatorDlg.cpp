@@ -275,17 +275,17 @@ void CCalculatorDlg::OnBnClickedNumPoint()
 
 void CCalculatorDlg::OnBnClickedSign()
 {
-	//m_processor.AssignOperator(Inputs::Op_Inverse);
-	//m_outputText = m_processor.GetTextC();
-	//UpdateData(FALSE);
+	m_processor.AssignOperator(Inputs::Op_Inverse);
+	m_outputText = m_processor.GetTextC();
+	UpdateData(FALSE);
 }
 
 
 void CCalculatorDlg::OnBnClickedClear()
 {
-	//m_processor.Clear();
-	//m_outputText = m_processor.GetTextC();
-	//UpdateData(FALSE);
+	m_processor.Clear();
+	m_outputText = m_processor.GetTextC();
+	UpdateData(FALSE);
 }
 
 

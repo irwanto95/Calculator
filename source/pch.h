@@ -9,8 +9,11 @@
 
 // add headers that you want to pre-compile here
 #include <string>
+#include <iostream>
 
 #include "framework.h"
 #include "Constants.hpp"
+
+using namespace std;
 
 #endif //PCH_H

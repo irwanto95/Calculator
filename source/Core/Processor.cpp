@@ -1,10 +1,14 @@
 #include "pch.h"
 #include "Processor.h"
 
+#define prev	m_argIdx - 1
+#define cur		m_argIdx
+
 template<typename _Ty>
 void ShiftLeft(_Ty* data, int start, int size, _Ty default);
 
 Processor::Processor()
+	: m_lastError(0)
 {
 	Clear();
 }
@@ -15,15 +19,23 @@ Processor::~Processor()
 
 void Processor::AssignNumber(unum num)
 {
+	if (num == 0 
+		&& m_valueStr.tellp() > 0
+		&& atoi(m_valueStr.str().c_str()) == 0)
+	{
+		return;
+	}
+
 	if (m_bNeedToInputFirstNumber)
 	{
 		ResetStream();
 		m_text.clear();
 		m_bNeedToInputFirstNumber = false;
+		m_lastError = Error::OPERATION_SUCESSFUL;
 	}
 
 	m_valueStr << num;
-	m_text += std::to_string(num);
+	m_text += to_string(num);
 
 	m_bLastInputIsOperator = false;
 }
@@ -35,18 +47,38 @@ void Processor::AssignOperator(snum op)
 		if (m_bLastInputIsOperator)
 		{
 			m_text.pop_back();
-			m_operator[m_argIdx - 1] = Inputs::Op_None;
+			m_operator[prev] = Inputs::Op_None;
 		}
 		else
 		{
 			AssignStreamToValue();
 		}
 
-		ProcessResult();
-		AssignValueToStream();
+		m_lastError = ProcessResult();
 
-		m_bLastInputIsOperator = false;
-		m_bNeedToInputFirstNumber = true;
+		if (m_lastError == Error::OPERATION_SUCESSFUL)
+		{
+			AssignValueToStream();
+
+			m_bLastInputIsOperator = false;
+			m_bNeedToInputFirstNumber = true;
+		}
+		else
+		{
+			switch (m_lastError)
+			{
+			case Processor::OPERATION_EXCEPTION_DIV_ZERO:
+				Clear();
+				m_text = k_exceptionMsgDivZero;
+				return;
+			case Processor::OPERATION_EXCEPTION_DIV_ZERO_INF:
+				Clear();
+				m_text = k_exceptionMsgDivZeroInf;
+				return;
+			default:
+				return;
+			}
+		}
 	}
 	else if (op == Inputs::Op_Point)
 	{
@@ -58,6 +90,14 @@ void Processor::AssignOperator(snum op)
 	}
 	else if (op == Inputs::Op_Inverse)
 	{
+		if (m_bIsFloatingNumber)
+		{
+			m_fArg[prev] *= -1.f;
+		}
+		else
+		{
+			m_iArg[prev] *= -1;
+		}
 	}
 	else
 	{
@@ -66,19 +106,46 @@ void Processor::AssignOperator(snum op)
 		if (m_bLastInputIsOperator)
 		{
 			m_text.pop_back();
-			m_operator[--m_argIdx] = op;
+			m_operator[prev] = op;
+			m_argIdx--;
 		}
 		else
 		{
+			if (m_lastError != Error::OPERATION_SUCESSFUL)
+			{
+				m_text = m_valueStr.str();
+				m_lastError = Error::OPERATION_SUCESSFUL;
+			}
+
 			AssignStreamToValue();
 
-			m_operator[m_argIdx] = op;
+			m_operator[cur] = op;
 
 			if (m_argIdx >= OS_MAX_ARG_INDEX)
 			{
-				ProcessResult();
-				AssignValueToStream();
-				ResetStream();
+				m_lastError = ProcessResult();
+
+				if (m_lastError == Error::OPERATION_SUCESSFUL)
+				{
+					AssignValueToStream();
+					ResetStream();
+				}
+				else
+				{
+					switch (m_lastError)
+					{
+					case Processor::OPERATION_EXCEPTION_DIV_ZERO:
+						Clear();
+						m_text = k_exceptionMsgDivZero;
+						return;
+					case Processor::OPERATION_EXCEPTION_DIV_ZERO_INF:
+						Clear();
+						m_text = k_exceptionMsgDivZeroInf;
+						return;
+					default:
+						return;
+					}
+				}
 			}
 		}
 
@@ -133,7 +200,7 @@ bool Processor::IsHighPriority(snum op)
 		|| op == Inputs::Op_Division;
 }
 
-void Processor::ProcessResult()
+int Processor::ProcessResult()
 {
 	int leftArg, rightArg;
 
@@ -152,22 +219,32 @@ void Processor::ProcessResult()
 				rightArg = OS_THIRD_ARG;
 			}
 
-			switch (m_operator[leftArg])
+			try
 			{
-			case Inputs::Op_Multiplication:
-				m_fArg[leftArg] *= m_fArg[rightArg];
-				break;
-			case Inputs::Op_Division:
-				m_fArg[leftArg] /= m_fArg[rightArg];
-				break;
-			case Inputs::Op_Addition:
-				m_fArg[leftArg] += m_fArg[rightArg];
-				break;
-			case Inputs::Op_Substraction:
-				m_fArg[leftArg] -= m_fArg[rightArg];
-				break;
-			default:
-				break;
+				switch (m_operator[leftArg])
+				{
+				case Inputs::Op_Multiplication:
+					m_fArg[leftArg] *= m_fArg[rightArg];
+					break;
+				case Inputs::Op_Division:
+					if (m_fArg[rightArg] == 0)
+						throw m_fArg[leftArg] == 0 ? Error::OPERATION_EXCEPTION_DIV_ZERO_INF : Error::OPERATION_EXCEPTION_DIV_ZERO;
+
+					m_fArg[leftArg] /= m_fArg[rightArg];
+					break;
+				case Inputs::Op_Addition:
+					m_fArg[leftArg] += m_fArg[rightArg];
+					break;
+				case Inputs::Op_Substraction:
+					m_fArg[leftArg] -= m_fArg[rightArg];
+					break;
+				default:
+					break;
+				}
+			}
+			catch (Error e)
+			{
+				return e;
 			}
 
 			ShiftLeft(m_fArg, rightArg, OS_MAX_ARG_COUNT, 0.f);
@@ -191,22 +268,32 @@ void Processor::ProcessResult()
 				rightArg = OS_THIRD_ARG;
 			}
 
-			switch (m_operator[leftArg])
+			try
 			{
-			case Inputs::Op_Multiplication:
-				m_iArg[leftArg] *= m_iArg[rightArg];
-				break;
-			case Inputs::Op_Division:
-				m_iArg[leftArg] /= m_iArg[rightArg];
-				break;
-			case Inputs::Op_Addition:
-				m_iArg[leftArg] += m_iArg[rightArg];
-				break;
-			case Inputs::Op_Substraction:
-				m_iArg[leftArg] -= m_iArg[rightArg];
-				break;
-			default:
-				break;
+				switch (m_operator[leftArg])
+				{
+				case Inputs::Op_Multiplication:
+					m_iArg[leftArg] *= m_iArg[rightArg];
+					break;
+				case Inputs::Op_Division:
+					if (m_iArg[rightArg] == 0)
+						throw m_fArg[leftArg] == 0 ? Error::OPERATION_EXCEPTION_DIV_ZERO_INF : Error::OPERATION_EXCEPTION_DIV_ZERO;
+
+					m_iArg[leftArg] /= m_iArg[rightArg];
+					break;
+				case Inputs::Op_Addition:
+					m_iArg[leftArg] += m_iArg[rightArg];
+					break;
+				case Inputs::Op_Substraction:
+					m_iArg[leftArg] -= m_iArg[rightArg];
+					break;
+				default:
+					break;
+				}
+			}
+			catch (Error e)
+			{
+				return e;
 			}
 
 			ShiftLeft(m_iArg, rightArg, OS_MAX_ARG_COUNT, 0);
@@ -215,17 +302,19 @@ void Processor::ProcessResult()
 			m_argIdx--;
 		}
 	}
+
+	return Error::OPERATION_SUCESSFUL;
 }
 
 void Processor::AssignStreamToValue()
 {
 	if (m_bIsFloatingNumber)
 	{
-		m_valueStr >> m_fArg[m_argIdx];
+		m_valueStr >> m_fArg[cur];
 	}
 	else
 	{
-		m_valueStr >> m_iArg[m_argIdx];
+		m_valueStr >> m_iArg[cur];
 	}
 
 	ResetStream();
