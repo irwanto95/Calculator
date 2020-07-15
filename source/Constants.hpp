@@ -21,3 +21,6 @@ const char k_op_addition = '+';
 const char k_op_substraction = '-';
 const char k_op_point = '.';
 const char k_op_result = '=';
+
+const char k_open_parenthesis = '(';
+const char k_close_parenthesis = ')';
