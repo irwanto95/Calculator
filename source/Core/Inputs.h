@@ -26,7 +26,7 @@ public:
 		Op_Multiplication,
 		Op_Division,
 		Op_Addition,
-		Op_Substraction,
+		Op_Subtraction,
 
 		Op_Inverse,
 		Op_Point,

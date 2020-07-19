@@ -112,7 +112,7 @@ inline int Processor::ProcessResult(_T* argIO)
 			case Inputs::Op_Addition:
 				argIO[leftArg] += argIO[rightArg];
 				break;
-			case Inputs::Op_Substraction:
+			case Inputs::Op_Subtraction:
 				argIO[leftArg] -= argIO[rightArg];
 				break;
 			default:

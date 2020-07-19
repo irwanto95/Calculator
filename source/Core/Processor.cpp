@@ -220,7 +220,7 @@ void Processor::AssignOperator(snum op)
 		case Inputs::Op_Addition:
 			m_text += k_op_addition;
 			break;
-		case Inputs::Op_Substraction:
+		case Inputs::Op_Subtraction:
 			m_text += k_op_substraction;
 			break;
 		default:

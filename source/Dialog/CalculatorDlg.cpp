@@ -63,6 +63,19 @@ void CCalculatorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_OUTPUT, m_outputText);
 }
 
+BOOL CCalculatorDlg::PreTranslateMessage(MSG* pMsg)
+{
+	if (m_hAccel)
+	{
+		if (::TranslateAccelerator(m_hWnd, m_hAccel, pMsg))
+		{
+			return(TRUE);
+		}
+	}
+
+	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
 BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
@@ -85,7 +98,7 @@ BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_MULTIPLICATION, &CCalculatorDlg::OnBnClickedMultiplication)
 	ON_BN_CLICKED(IDC_DIVISION, &CCalculatorDlg::OnBnClickedDivision)
 	ON_BN_CLICKED(IDC_ADDITION, &CCalculatorDlg::OnBnClickedAddition)
-	ON_BN_CLICKED(IDC_SUBSTRACTION, &CCalculatorDlg::OnBnClickedSubstraction)
+	ON_BN_CLICKED(IDC_SUBTRACTION, &CCalculatorDlg::OnBnClickedSubtraction)
 	ON_BN_CLICKED(IDC_RESULT, &CCalculatorDlg::OnBnClickedResult)
 END_MESSAGE_MAP()
 
@@ -122,6 +135,7 @@ BOOL CCalculatorDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	m_hAccel = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_ACCELERATOR));
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -319,9 +333,9 @@ void CCalculatorDlg::OnBnClickedAddition()
 }
 
 
-void CCalculatorDlg::OnBnClickedSubstraction()
+void CCalculatorDlg::OnBnClickedSubtraction()
 {
-	m_processor.AssignOperator(Inputs::Op_Substraction);
+	m_processor.AssignOperator(Inputs::Op_Subtraction);
 	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
 }

@@ -14,8 +14,9 @@ public:
 	enum { IDD = IDD_CALCULATOR_DIALOG };
 #endif
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 	afx_msg void OnBnClickedNum1();
 	afx_msg void OnBnClickedNum2();
@@ -35,12 +36,13 @@ public:
 	afx_msg void OnBnClickedMultiplication();
 	afx_msg void OnBnClickedDivision();
 	afx_msg void OnBnClickedAddition();
-	afx_msg void OnBnClickedSubstraction();
+	afx_msg void OnBnClickedSubtraction();
 	afx_msg void OnBnClickedResult();
 
 // Implementation
 protected:
 	HICON m_hIcon;
+	HACCEL m_hAccel;
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
