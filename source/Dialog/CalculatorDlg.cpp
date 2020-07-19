@@ -91,7 +91,7 @@ BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_NUM_9, &CCalculatorDlg::OnBnClickedNum9)
 	ON_BN_CLICKED(IDC_NUM_0, &CCalculatorDlg::OnBnClickedNum0)
 	ON_BN_CLICKED(IDC_NUM_000, &CCalculatorDlg::OnBnClickedNum000)
-	ON_BN_CLICKED(IDC_NUM_POINT, &CCalculatorDlg::OnBnClickedNumPoint)
+	ON_BN_CLICKED(IDC_POINT, &CCalculatorDlg::OnBnClickedPoint)
 	ON_BN_CLICKED(IDC_SIGN, &CCalculatorDlg::OnBnClickedSign)
 	ON_BN_CLICKED(IDC_CLEAR, &CCalculatorDlg::OnBnClickedClear)
 	ON_BN_CLICKED(IDC_DELETE, &CCalculatorDlg::OnBnClickedDelete)
@@ -279,11 +279,11 @@ void CCalculatorDlg::OnBnClickedNum000()
 }
 
 
-void CCalculatorDlg::OnBnClickedNumPoint()
+void CCalculatorDlg::OnBnClickedPoint()
 {
-	//m_processor.AssignOperator(Inputs::Op_Point);
-	//m_outputText = m_processor.GetTextC();
-	//UpdateData(FALSE);
+	m_processor.AssignOperator(Inputs::Op_Point);
+	m_outputText = m_processor.GetTextC();
+	UpdateData(FALSE);
 }
 
 

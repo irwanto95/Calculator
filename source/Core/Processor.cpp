@@ -25,7 +25,7 @@ void Processor::AssignNumber(unum num)
 		{
 			return;
 		}
-		else
+		else if (!(m_lastInput & Status::NUMBER_DECIMAL))
 		{
 			ResetStream();
 			m_text.pop_back();
@@ -36,12 +36,17 @@ void Processor::AssignNumber(unum num)
 	{
 		ResetStream(true);
 		m_lastError = Error::OPERATION_SUCESSFUL;
+		m_bIsDecimal = false;
 	}
 
 	m_valueStr << num;
 	m_text += to_string(num);
 
-	if (m_lastInput != Status::INPUT_INVERSE_NUMBER)
+	if (m_lastInput & Status::NUMBER_EXTEND)
+	{
+		m_lastInput |= Status::INPUT_NUMBER;
+	}
+	else
 	{
 		m_lastInput = Status::INPUT_NUMBER;
 	}
@@ -51,7 +56,7 @@ void Processor::AssignOperator(snum op)
 {
 	if (op == Inputs::Op_Result)
 	{
-		if (m_lastInput == Status::INPUT_OPERATOR)
+		if (m_lastInput & Status::INPUT_OPERATOR)
 		{
 			m_text.pop_back();
 			m_operator[prev] = Inputs::Op_None;
@@ -61,7 +66,7 @@ void Processor::AssignOperator(snum op)
 			AssignStreamToValue();
 		}
 
-		if (m_bIsFloatingNumber)
+		if (m_bIsDecimal)
 		{
 			m_lastError = ProcessResult(m_fArg);
 		}
@@ -92,10 +97,29 @@ void Processor::AssignOperator(snum op)
 	}
 	else if (op == Inputs::Op_Point)
 	{
-		if (!m_bIsFloatingNumber)
+		if (!(m_lastInput & Status::NUMBER_DECIMAL))
 		{
+			if (m_valueStr.tellp() == 0)
+			{
+				AssignNumber(Inputs::Number_0);
+			}
+
 			m_valueStr << k_op_point;
-			m_bIsFloatingNumber = true;
+			m_text += k_op_point;
+
+			// floating for the first time
+			if (!m_bIsDecimal && m_argIdx >= OS_SECOND_ARG)
+			{
+				int arg = m_argIdx;
+
+				while (arg-- > OS_FIRST_ARG)
+				{
+					m_fArg[arg] = m_iArg[arg];
+				}
+			}
+
+			m_lastInput |= Status::NUMBER_DECIMAL;
+			m_bIsDecimal = true;
 		}
 	}
 	else if (op == Inputs::Op_Inverse)
@@ -115,7 +139,7 @@ void Processor::AssignOperator(snum op)
 
 		stringstream operators;
 
-		if (m_lastInput == Status::INPUT_INVERSE_NUMBER)
+		if (m_lastInput & Status::NUMBER_INVERSE)
 		{
 			operators << k_open_parenthesis;
 
@@ -130,7 +154,7 @@ void Processor::AssignOperator(snum op)
 			}
 
 			m_text += m_valueStr.str();
-			m_lastInput = Status::INPUT_NUMBER;
+			m_lastInput ^= Status::NUMBER_INVERSE;
 		}
 		else
 		{
@@ -148,12 +172,12 @@ void Processor::AssignOperator(snum op)
 			
 			m_text += k_open_parenthesis;
 			m_text += m_valueStr.str();
-			m_lastInput = Status::INPUT_INVERSE_NUMBER;
+			m_lastInput |= Status::NUMBER_INVERSE;
 		}
 	}
 	else
 	{
-		if (m_lastInput == Status::INPUT_OPERATOR)
+		if (m_lastInput & Status::INPUT_OPERATOR)
 		{
 			m_text.pop_back();
 			m_operator[prev] = op;
@@ -161,7 +185,7 @@ void Processor::AssignOperator(snum op)
 		}
 		else
 		{
-			if (m_lastInput == Status::INPUT_INVERSE_NUMBER)
+			if (m_lastInput & Status::NUMBER_INVERSE)
 			{
 				m_text += k_close_parenthesis;
 			}
@@ -178,7 +202,7 @@ void Processor::AssignOperator(snum op)
 
 			if (m_argIdx >= OS_MAX_ARG_INDEX)
 			{
-				if (m_bIsFloatingNumber)
+				if (m_bIsDecimal)
 				{
 					m_lastError = ProcessResult(m_fArg);
 				}
@@ -236,7 +260,7 @@ void Processor::Clear()
 {
 	m_argIdx = 0;
 	m_lastInput = Status::INPUT_NONE;
-	m_bIsFloatingNumber = false;
+	m_bIsDecimal = false;
 	
 	ResetStream(true);
 	m_valueStr << k_number_0;
@@ -261,7 +285,7 @@ bool Processor::IsHighPriority(snum op)
 
 void Processor::AssignStreamToValue()
 {
-	if (m_bIsFloatingNumber)
+	if (m_bIsDecimal)
 	{
 		m_valueStr >> m_fArg[cur];
 	}
@@ -275,7 +299,7 @@ void Processor::AssignStreamToValue()
 
 void Processor::AssignValueToStream()
 {
-	if (m_bIsFloatingNumber)
+	if (m_bIsDecimal)
 	{
 		m_valueStr << m_fArg[0];
 	}

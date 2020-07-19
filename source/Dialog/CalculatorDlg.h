@@ -29,7 +29,7 @@ protected:
 	afx_msg void OnBnClickedNum9();
 	afx_msg void OnBnClickedNum0();
 	afx_msg void OnBnClickedNum000();
-	afx_msg void OnBnClickedNumPoint();
+	afx_msg void OnBnClickedPoint();
 	afx_msg void OnBnClickedSign();
 	afx_msg void OnBnClickedClear();
 	afx_msg void OnBnClickedDelete();

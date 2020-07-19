@@ -26,10 +26,13 @@ class Processor
 
 	enum Status
 	{
-		INPUT_NONE = -1,
-		INPUT_NUMBER,
-		INPUT_INVERSE_NUMBER,
-		INPUT_OPERATOR,
+		INPUT_NONE = 0x00,
+		INPUT_NUMBER = 1 << 0,
+		INPUT_OPERATOR = 1 << 2,
+
+		NUMBER_INVERSE = 1 << 6,
+		NUMBER_DECIMAL = 1 << 7,
+		NUMBER_EXTEND = NUMBER_INVERSE | NUMBER_DECIMAL,
 	};
 
 	const string k_exceptionMsgDivZero		= "Divided by Zero, result : undefinition";
@@ -68,10 +71,10 @@ private:
 	stringstream	m_valueStr;
 	string			m_text;
 
-	bool m_bIsFloatingNumber;
+	bool m_bIsDecimal;
 
 	short	m_argIdx;
-	snum	m_lastInput;
+	sbit16	m_lastInput;
 	snum	m_operator[OS_MAX_ARG_COUNT];
 	int		m_lastError;
 };

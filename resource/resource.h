@@ -17,7 +17,7 @@
 #define IDC_NUM_8                       111
 #define IDC_NUM_9                       112
 #define IDC_NUM_000                     113
-#define IDC_NUM_POINT                   114
+#define IDC_POINT                       114
 #define IDC_OUTPUT                      115
 #define IDR_MAINFRAME                   128
 #define IDR_ACCELERATOR                 129
@@ -30,13 +30,14 @@
 #define IDC_SUBTRACTION                 1006
 #define IDC_RESULT                      1007
 #define ID_ACCELERATOR32784             32784
+#define ID_ACCELERATOR32791             32791
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
-#define _APS_NEXT_COMMAND_VALUE         32791
+#define _APS_NEXT_COMMAND_VALUE         32795
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
