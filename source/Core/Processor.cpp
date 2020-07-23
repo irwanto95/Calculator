@@ -1,14 +1,7 @@
 #include "pch.h"
 #include "Processor.h"
 
-#define prev	m_argIdx - 1
-#define cur		m_argIdx
-
-
-
 Processor::Processor()
-	: m_lastError(0)
-	, m_lastInput(Status::INPUT_NONE)
 {
 	Clear();
 }
@@ -17,68 +10,73 @@ Processor::~Processor()
 {
 }
 
-void Processor::AssignNumber(unum num)
+void Processor::AssignNumber(si16 num)
 {
-	if (m_valueStr.tellp() > 0 && atoi(m_valueStr.str().c_str()) == 0)
+	// initial state or not decimal result argument
+	if ((!m_prevArg && m_arg->nType == ARG_UNDEFINED)
+		|| (m_arg->nType & ARG_NUMBER_RESULT && atoi(m_arg->str().c_str()) != 0))
+	{
+		m_arg->reset();
+		m_text.clear();
+		m_lastError = Error::OPERATION_SUCESSFUL;
+		m_bIsDecimal = false;
+	}
+	// stream value is 0 and not a decimal number
+	else if (m_arg->nType != ARG_UNDEFINED 
+		&& atoi(m_arg->str().c_str()) == 0 
+		&& !(m_arg->nType & ARG_NUMBER_DECIMAL))
 	{
 		if (num == 0)
 		{
 			return;
 		}
-		else if (!(m_lastInput & Status::NUMBER_DECIMAL))
+		else
 		{
-			ResetStream();
+			m_arg->reset();
 			m_text.pop_back();
 		}
 	}
 
-	if (m_lastInput == Status::INPUT_NONE)
-	{
-		ResetStream(true);
-		m_lastError = Error::OPERATION_SUCESSFUL;
-		m_bIsDecimal = false;
-	}
-
-	m_valueStr << num;
+	m_arg->nType |= ARG_NUMBER;
+	(*m_arg) << num;
 	m_text += to_string(num);
-
-	if (m_lastInput & Status::NUMBER_EXTEND)
-	{
-		m_lastInput |= Status::INPUT_NUMBER;
-	}
-	else
-	{
-		m_lastInput = Status::INPUT_NUMBER;
-	}
 }
 
-void Processor::AssignOperator(snum op)
+void Processor::AssignOperator(si16 op)
 {
 	if (op == Inputs::Op_Result)
 	{
-		if (m_lastInput & Status::INPUT_OPERATOR)
+		if (m_arg->nType == ARG_UNDEFINED && m_prevArg && m_prevArg->nType & ARG_OPERATOR)
 		{
+			m_argIdx--;
 			m_text.pop_back();
-			m_operator[prev] = Inputs::Op_None;
+			m_arg = m_prevArg;
+			m_arg->reset();
 		}
 		else
 		{
-			AssignStreamToValue();
+			m_arg->applyStream();
 		}
 
-		if (m_bIsDecimal)
-		{
-			m_lastError = ProcessResult(m_fArg);
-		}
-		else
-		{
-			m_lastError = ProcessResult(m_iArg);
-		}
+		m_lastError = ProcessResult();
 
 		if (m_lastError == Error::OPERATION_SUCESSFUL)
 		{
-			AssignValueToStream();
-			m_lastInput = Status::INPUT_NONE;
+			MF_ASSERT_MSG(m_argIdx == OS_FIRST_ARG, "Something wrong on ProcessResult !");
+
+			m_text.clear();
+
+			if (m_arguments[OS_FIRST_NUM].nType & ARG_NUMBER_INVERSE)
+			{
+				m_text += k_open_parenthesis;
+			}
+
+			m_text += m_arguments[OS_FIRST_NUM].str();
+
+			m_arguments.resize(OS_MAX_ARG_COUNT);
+			m_prevArg = NULL;
+
+			ValidateStreamAndText(&m_arguments[OS_FIRST_NUM], &m_text);
 		}
 		else
 		{
@@ -97,68 +95,65 @@ void Processor::AssignOperator(snum op)
 	}
 	else if (op == Inputs::Op_Point)
 	{
-		if (!(m_lastInput & Status::NUMBER_DECIMAL))
+		MF_ASSERT(!(m_arg->nType & ARG_OPERATOR));
+
+		if (!(m_arg->nType & ARG_NUMBER_DECIMAL))
 		{
-			if (m_valueStr.tellp() == 0)
+			if (m_arg->nType == ARG_UNDEFINED)
 			{
 				AssignNumber(Inputs::Number_0);
 			}
 
-			m_valueStr << k_op_point;
+			m_arg->nStream << k_op_point;
 			m_text += k_op_point;
 
 			// floating for the first time
-			if (!m_bIsDecimal && m_argIdx >= OS_SECOND_ARG)
+			if (!m_bIsDecimal && m_argIdx >= OS_SECOND_NUM)
 			{
-				int arg = m_argIdx;
+				int idx = m_argIdx;
 
-				while (arg-- > OS_FIRST_ARG)
+				while (idx > OS_FIRST_NUM)
 				{
-					m_fArg[arg] = m_iArg[arg];
+					idx -= 2;
+					m_arguments[idx].nfArg = m_arguments[idx].niArg;
+					m_arguments[idx].nType |= ARG_NUMBER_DECIMAL;
 				}
 			}
 
-			m_lastInput |= Status::NUMBER_DECIMAL;
+			m_arg->nType |= ARG_NUMBER_DECIMAL;
 			m_bIsDecimal = true;
 		}
 	}
 	else if (op == Inputs::Op_Inverse)
 	{
-		if (m_valueStr.tellp() == 0 || atoi(m_valueStr.str().c_str()) == 0)
+		if (m_arg->nType == ARG_UNDEFINED || atoi(m_arg->str().c_str()) == 0)
 		{
 			return;
 		}
 
-		int value;
-		m_valueStr >> value;
-
-		ResetStream();
-
-		value *= -1;
-		m_valueStr << value;
-
 		stringstream operators;
+		string originalStr = m_arg->nStream.str();
+		m_arg->nStream.str("");
+		m_arg->nStream.clear();
 
-		if (m_lastInput & Status::NUMBER_INVERSE)
+		if (m_arg->nType & ARG_NUMBER_INVERSE)
 		{
+			originalStr.erase(0, 1);
+			m_arg->nStream << originalStr;
+
 			operators << k_open_parenthesis;
 
 			size_t opPos = m_text.find_last_of(operators.str());
-			if (opPos != string::npos)
-			{
-				m_text.erase(opPos);
-			}
-			else
-			{
-				m_text.clear();
-			}
+			MF_ASSERT(opPos != string::npos);
 
-			m_text += m_valueStr.str();
-			m_lastInput ^= Status::NUMBER_INVERSE;
+			m_text.erase(opPos);			
+			m_text += m_arg->nStream.str();
 		}
 		else
 		{
-			operators << k_op_mulplication << k_op_division << k_op_addition << k_op_substraction;
+			m_arg->nStream << k_op_subtraction << originalStr;
+
+			operators << k_op_mulplication << k_op_division << k_op_addition << k_op_subtraction;
 			
 			size_t opPos = m_text.find_last_of(operators.str());
 			if (opPos != string::npos)
@@ -171,50 +166,59 @@ void Processor::AssignOperator(snum op)
 			}
 			
 			m_text += k_open_parenthesis;
-			m_text += m_valueStr.str();
-			m_lastInput |= Status::NUMBER_INVERSE;
+			m_text += m_arg->nStream.str();
 		}
+
+		m_arg->nType ^= ARG_NUMBER_INVERSE;
 	}
 	else
 	{
-		if (m_lastInput & Status::INPUT_OPERATOR)
+		if (m_arg->nType == ARG_UNDEFINED && m_prevArg && m_prevArg->nType & ARG_OPERATOR)
 		{
 			m_text.pop_back();
-			m_operator[prev] = op;
-			m_argIdx--;
+			PassInputAsOperator(m_prevArg, op);
 		}
 		else
 		{
-			if (m_lastInput & Status::NUMBER_INVERSE)
+			if (m_arg->nType == ARG_UNDEFINED)
 			{
-				m_text += k_close_parenthesis;
+				AssignNumber(Inputs::Number_0);
 			}
+
+			NextArgument();
+			MF_ASSERT(m_prevArg);
+
+			ValidateStreamAndText(m_prevArg, &m_text);
 
 			if (m_lastError != Error::OPERATION_SUCESSFUL)
 			{
-				m_text = m_valueStr.str();
+				m_text = m_arg->str();
 				m_lastError = Error::OPERATION_SUCESSFUL;
 			}
 
-			AssignStreamToValue();
+			m_prevArg->applyStream();
 
-			m_operator[cur] = op;
-
+			PassInputAsOperator(m_arg, op);
+			
 			if (m_argIdx >= OS_MAX_ARG_INDEX)
 			{
-				if (m_bIsDecimal)
-				{
-					m_lastError = ProcessResult(m_fArg);
-				}
-				else
-				{
-					m_lastError = ProcessResult(m_iArg);
-				}
+				m_lastError = ProcessResult();
 
 				if (m_lastError == Error::OPERATION_SUCESSFUL)
 				{
-					AssignValueToStream();
-					ResetStream();
+					MF_ASSERT_MSG(m_argIdx == OS_FIRST_OP, "Something wrong on ProcessResult !");
+
+					m_text.clear();
+
+					if (m_arguments[OS_FIRST_NUM].nType & ARG_NUMBER_INVERSE)
+					{
+						m_text += k_open_parenthesis;
+					}
+
+					m_text += m_arguments[OS_FIRST_NUM].str();
+					m_arguments.resize(OS_MAX_ARG_COUNT);
+
+					ValidateStreamAndText(&m_arguments[OS_FIRST_NUM], &m_text);
 				}
 				else
 				{
@@ -231,6 +235,8 @@ void Processor::AssignOperator(snum op)
 					}
 				}
 			}
+			
+			NextArgument();
 		}
 
 		switch (op)
@@ -245,79 +251,300 @@ void Processor::AssignOperator(snum op)
 			m_text += k_op_addition;
 			break;
 		case Inputs::Op_Subtraction:
-			m_text += k_op_substraction;
+			m_text += k_op_subtraction;
 			break;
 		default:
 			break;
 		}
-
-		m_lastInput = Status::INPUT_OPERATOR;
-		m_argIdx++;
 	}
 }
 
 void Processor::Clear()
 {
+	m_arguments.clear();
+	m_arguments.resize(OS_MAX_ARG_COUNT);
+
+	m_prevArg = NULL;
+	m_arg = &m_arguments[OS_FIRST_ARG];
+
 	m_argIdx = 0;
-	m_lastInput = Status::INPUT_NONE;
 	m_bIsDecimal = false;
-	
-	ResetStream(true);
-	m_valueStr << k_number_0;
-	m_text = m_valueStr.str();
 
-	for (int i = 0; i < OS_MAX_ARG_COUNT; i++)
-	{
-		m_iArg[i] = 0;
-	}
-
-	for (int i = 0; i < OS_MAX_ARG_COUNT; i++)
-	{
-		m_operator[i] = Inputs::Op_None;
-	}
+	(*m_arg) << k_number_0;
+	m_text = m_arg->str();
 }
 
-bool Processor::IsHighPriority(snum op)
+bool Processor::IsHighPriority(sbit16 op)
 {
-	return op == Inputs::Op_Multiplication
-		|| op == Inputs::Op_Division;
+	return op & (ARG_OPERATOR_MULTIPLICATION | ARG_OPERATOR_DIVISION);
 }
 
-void Processor::AssignStreamToValue()
+int Processor::ProcessResult()
 {
+	int leftArg, rightArg ,opArg;
+
+	while (m_argIdx >= OS_SECOND_NUM)
+	{
+		if (!IsHighPriority(m_arguments[OS_SECOND_OP].nType) 
+			|| IsHighPriority(m_arguments[OS_FIRST_OP].nType) 
+			|| m_argIdx == OS_SECOND_NUM)
+		{
+			leftArg = OS_FIRST_NUM;
+			rightArg = OS_SECOND_NUM;
+			opArg = OS_FIRST_OP;
+		}
+		else
+		{
+			leftArg = OS_SECOND_NUM;
+			rightArg = OS_THIRD_NUM;
+			opArg = OS_SECOND_OP;
+		}
+
+		try
+		{
+			switch (m_arguments[opArg].nType)
+			{
+			case ARG_OPERATOR_MULTIPLICATION:
+			{
+				if (m_bIsDecimal)
+				{
+					m_arguments[leftArg].nfArg *= m_arguments[rightArg].nfArg;
+				}
+				else
+				{
+					m_arguments[leftArg].niArg *= m_arguments[rightArg].niArg;
+				}
+
+				break;
+			}
+			case ARG_OPERATOR_DIVISION:
+			{
+				if (m_arguments[rightArg].niArg == 0)
+				{
+					throw m_arguments[leftArg].niArg == 0 
+						? Error::OPERATION_EXCEPTION_DIV_ZERO_INF 
+						: Error::OPERATION_EXCEPTION_DIV_ZERO;
+				}
+
+				if (m_bIsDecimal)
+				{
+					m_arguments[leftArg].nfArg /= m_arguments[rightArg].nfArg;
+				}
+				else
+				{
+					m_arguments[leftArg].niArg /= m_arguments[rightArg].niArg;
+				}
+
+				break;
+			}
+			case ARG_OPERATOR_ADDITION:
+			{
+				if (m_bIsDecimal)
+				{
+					m_arguments[leftArg].nfArg += m_arguments[rightArg].nfArg;
+				}
+				else
+				{
+					m_arguments[leftArg].niArg += m_arguments[rightArg].niArg;
+				}
+
+				break;
+			}
+			case ARG_OPERATOR_SUBTRACTION:
+			{
+				if (m_bIsDecimal)
+				{
+					m_arguments[leftArg].nfArg -= m_arguments[rightArg].nfArg;
+				}
+				else
+				{
+					m_arguments[leftArg].niArg -= m_arguments[rightArg].niArg;
+				}
+
+				break;
+			}
+			default:
+				break;
+			}
+		}
+		catch (Error e)
+		{
+			return e;
+		}
+
+		m_arguments.erase(m_arguments.begin() + rightArg);
+		m_arguments.erase(m_arguments.begin() + opArg);
+
+		m_argIdx -= 2;
+	}
+
+	// number or operator
+	m_arg = &m_arguments[m_argIdx];
+
+	m_arguments[OS_FIRST_NUM].applyValue();
+	m_arguments[OS_FIRST_NUM].nType = ARG_NUMBER | ARG_NUMBER_RESULT;
+
+	// to do : apply new decimal & inverse
 	if (m_bIsDecimal)
 	{
-		m_valueStr >> m_fArg[cur];
+		m_arguments[OS_FIRST_NUM].nType |= ARG_NUMBER_DECIMAL;
+
+		if (m_arguments[OS_FIRST_NUM].nfArg < FLT_MIN)
+		{			
+			m_arguments[OS_FIRST_NUM].nType |= ARG_NUMBER_INVERSE;
+		}
 	}
 	else
 	{
-		m_valueStr >> m_iArg[cur];
+		if (m_arguments[OS_FIRST_NUM].niArg < 0)
+		{
+			m_arguments[OS_FIRST_NUM].nType |= ARG_NUMBER_INVERSE;
+		}
 	}
 
-	ResetStream();
+	return Error::OPERATION_SUCESSFUL;
 }
 
-void Processor::AssignValueToStream()
+void Processor::PassInputAsOperator(Argument* pArg, si16 op)
 {
-	if (m_bIsDecimal)
+	pArg->nStream.str("");
+	pArg->nStream.clear();
+
+	switch (op)
 	{
-		m_valueStr << m_fArg[0];
+	case Inputs::Op_Multiplication:
+		pArg->nType = ARG_OPERATOR_MULTIPLICATION;
+		pArg->nStream << k_op_mulplication;
+		break;
+	case Inputs::Op_Division:
+		pArg->nType = ARG_OPERATOR_DIVISION;
+		pArg->nStream << k_op_division;
+		break;
+	case Inputs::Op_Addition:
+		pArg->nType = ARG_OPERATOR_ADDITION;
+		pArg->nStream << k_op_addition;
+		break;
+	case Inputs::Op_Subtraction:
+		pArg->nType = ARG_OPERATOR_SUBTRACTION;
+		pArg->nStream << k_op_subtraction;
+		break;
+	default:
+		pArg->nType = ARG_UNDEFINED;
+		break;
+	}
+}
+
+void Processor::NextArgument()
+{
+	m_prevArg = m_arg;
+	m_arg = &m_arguments[++m_argIdx];
+}
+
+void Processor::ValidateStreamAndText(Argument* pArg, string* text)
+{
+	MF_ASSERT(pArg && text);
+
+	if (pArg->nType & ARG_NUMBER_DECIMAL)
+	{
+		size_t opPos = pArg->nStream.str().find_last_of(k_op_point);
+		if (opPos == string::npos)
+		{
+			pArg->nStream << k_op_point << k_number_0;
+			*text += k_op_point;
+			*text += k_number_0;
+		}
+		else if (opPos == pArg->nStream.str().size() - 1)
+		{
+			pArg->nStream << k_number_0;	
+			*text += k_number_0;
+		}
+	}
+
+	if (pArg->nType & ARG_NUMBER_INVERSE)
+	{
+		size_t opPos;
+		
+		opPos = text->find_last_of(k_open_parenthesis);
+		MF_ASSERT(opPos != string::npos);
+
+		opPos = text->find_first_of(k_close_parenthesis, opPos);
+		if (opPos == string::npos)
+		{
+			*text += k_close_parenthesis;
+		}
+	}
+}
+
+Processor::Argument::Argument()
+	: nfArg(0.f)
+	, niArg(0)
+	, nType(ARG_UNDEFINED)
+{
+}
+
+Processor::Argument::Argument(const Argument& pArg)
+{
+	*this = pArg;
+}
+
+Processor::Argument::~Argument()
+{
+	reset();
+}
+
+void Processor::Argument::reset(Argument* pArg)
+{
+	if (pArg)
+	{
+		*this = *pArg;
 	}
 	else
 	{
-		m_valueStr << m_iArg[0];
+		nfArg = NULL;
+		nType = ARG_UNDEFINED;
+		nStream.str("");
+		nStream.clear();
 	}
-
-	m_text = m_valueStr.str();
 }
 
-void Processor::ResetStream(bool clearText)
+void Processor::Argument::applyStream()
 {
-	m_valueStr.str("");
-	m_valueStr.clear();
-
-	if (clearText)
+	if (nType & ARG_NUMBER_DECIMAL)
 	{
-		m_text.clear();
+		nStream >> nfArg;
 	}
+	else
+	{
+		nStream >> niArg;
+	}
+
+	nType |= ARG_NUMBER;
+}
+
+void Processor::Argument::applyValue()
+{
+	nStream.str("");
+	nStream.clear();
+
+	if (nType & ARG_NUMBER_DECIMAL)
+	{
+		nStream << nfArg;
+	}
+	else
+	{
+		nStream << niArg;
+	}
+}
+
+Processor::Argument* Processor::Argument::operator=(const Argument& oth)
+{
+	nfArg = oth.nfArg;
+	niArg = oth.niArg;
+	nType = oth.nType;
+
+	nStream.str("");
+	nStream.clear();
+	nStream << oth.nStream.str();
+
+	return this;
 }
