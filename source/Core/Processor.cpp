@@ -58,10 +58,13 @@ void Processor::AssignOperator(si16 op)
 
 		if (m_arg->nType == ARG_UNDEFINED && m_prevArg && m_prevArg->nType & ARG_OPERATOR)
 		{
-			m_argIdx--;
+			PrevArgument(); // set to operator
+			MF_ASSERT(m_arg->nType & ARG_OPERATOR);
+
+			PrevArgument(); // set to number
+			MF_ASSERT(m_arg->nType & ARG_NUMBER);
+
 			m_text.pop_back();
-			m_arg = m_prevArg;
-			m_arg->reset();
 		}
 		else
 		{
@@ -295,6 +298,80 @@ void Processor::Clear()
 	m_text = m_arg->str();
 }
 
+void Processor::EraseBack()
+{
+	if (m_text.size() <= 1 || m_lastError != OPERATION_SUCESSFUL)
+	{
+		Clear();
+		return;
+	}
+
+	if (m_arg->nType == ARG_UNDEFINED)
+	{
+		PrevArgument();
+
+		MF_ASSERT(m_arg->nType & ARG_OPERATOR);
+		PrevArgument();
+
+		m_text.pop_back();
+
+		if (m_arg->nType & ARG_NUMBER_INVERSE)
+		{
+			m_text.pop_back(); // remove ')'
+		}
+
+		return;
+	}
+
+	MF_ASSERT(m_arg->nStream.tellp() > 0);
+
+	string originalStr = m_arg->nStream.str();
+	m_arg->nStream.str("");
+	m_arg->nStream.clear();
+
+	char c = originalStr.back();
+	if (c == k_op_point)
+	{
+		m_arg->nType ^= ARG_NUMBER_DECIMAL;
+	}
+
+	originalStr.pop_back();
+	m_text.pop_back();
+
+	if (originalStr.size() > 0)
+	{
+		c = originalStr.back();
+		if (c == k_op_subtraction)
+		{
+			m_arg->reset();
+
+			MF_ASSERT(m_text.size() >= 2);
+			m_text.pop_back(); // remove '-'
+			m_text.pop_back(); // remove '('
+
+			if (m_text.size() <= 0)
+			{
+				Clear();
+			}
+
+			return;
+		}
+		else
+		{
+			m_arg->nStream << originalStr;	
+		}
+	}
+	else
+	{
+		m_arg->reset();
+	}
+
+	if (m_arg->nType & ARG_NUMBER_RESULT)
+	{
+		m_arg->nType ^= ARG_NUMBER_RESULT;
+	}
+}
+
 bool Processor::IsHighPriority(sbit16 op)
 {
 	return op & (ARG_OPERATOR_MULTIPLICATION | ARG_OPERATOR_DIVISION);
@@ -410,7 +487,7 @@ int Processor::ProcessResult()
 	{
 		m_arguments[OS_FIRST_NUM].nType |= ARG_NUMBER_DECIMAL;
 
-		if (m_arguments[OS_FIRST_NUM].nfArg < FLT_MIN)
+		if (m_arguments[OS_FIRST_NUM].nfArg < -FLT_MIN)
 		{			
 			m_arguments[OS_FIRST_NUM].nType |= ARG_NUMBER_INVERSE;
 		}
@@ -459,6 +536,14 @@ void Processor::NextArgument()
 {
 	m_prevArg = m_arg;
 	m_arg = &m_arguments[++m_argIdx];
+}
+
+void Processor::PrevArgument()
+{
+	m_argIdx--;
+	m_arg->reset();
+	m_arg = m_prevArg;
+	m_prevArg = m_argIdx > OS_FIRST_ARG ? &m_arguments[m_argIdx - 1] : NULL;
 }
 
 void Processor::ValidateStreamAndText(Argument* pArg, string* text)

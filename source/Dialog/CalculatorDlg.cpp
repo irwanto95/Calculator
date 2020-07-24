@@ -305,7 +305,9 @@ void CCalculatorDlg::OnBnClickedClear()
 
 void CCalculatorDlg::OnBnClickedDelete()
 {
-	// TODO: Add your control notification handler code here
+	m_processor.EraseBack();
+	m_outputText = m_processor.GetTextC();
+	UpdateData(FALSE);
 }
 
 

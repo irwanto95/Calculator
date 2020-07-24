@@ -39,13 +39,13 @@ public:
 		ARG_NUMBER = 1 << 0,
 		ARG_NUMBER_DECIMAL = 1 << 1,
 		ARG_NUMBER_INVERSE = 1 << 2,
-		ARG_NUMBER_RESULT = 1 << 7,
+		ARG_NUMBER_RESULT = 1 << 3,
 		ARG_NUMBER_EXTENDED = ARG_NUMBER_INVERSE | ARG_NUMBER_DECIMAL,
 
-		ARG_OPERATOR_ADDITION = 1 << 3,
-		ARG_OPERATOR_SUBTRACTION = 1 << 4,
-		ARG_OPERATOR_MULTIPLICATION = 1 << 5,
-		ARG_OPERATOR_DIVISION = 1 << 6,
+		ARG_OPERATOR_ADDITION = 1 << 4,
+		ARG_OPERATOR_SUBTRACTION = 1 << 5,
+		ARG_OPERATOR_MULTIPLICATION = 1 << 6,
+		ARG_OPERATOR_DIVISION = 1 << 7,
 		ARG_OPERATOR = ARG_OPERATOR_ADDITION | ARG_OPERATOR_SUBTRACTION | ARG_OPERATOR_MULTIPLICATION | ARG_OPERATOR_DIVISION,
 	};
 
@@ -88,6 +88,7 @@ public:
 	void AssignNumber(si16 num);
 	void AssignOperator(si16 op);
 	void Clear();
+	void EraseBack();
 
 	const string	GetText() { return m_text; }
 	const char*		GetTextC() { return m_text.c_str(); }
@@ -97,6 +98,7 @@ private:
 
 	void PassInputAsOperator(Argument* pArg, si16 op);
 	void NextArgument();
+	void PrevArgument();
 	void ValidateStreamAndText(Argument* pArg, string* text);
 	bool IsHighPriority(sbit16 op);
 
