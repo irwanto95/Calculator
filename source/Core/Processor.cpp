@@ -120,21 +120,9 @@ void Processor::AssignOperator(si16 op)
 			m_arg->nStream << k_op_point;
 			m_text += k_op_point;
 
-			// floating for the first time
-			if (!m_bIsDecimal && m_argIdx >= OS_SECOND_NUM)
-			{
-				int idx = m_argIdx;
-
-				while (idx > OS_FIRST_NUM)
-				{
-					idx -= 2;
-					m_arguments[idx].nfArg = m_arguments[idx].niArg;
-					m_arguments[idx].nType |= ARG_NUMBER_DECIMAL;
-				}
-			}
+			ChangeArgumentsToDecimal(true);
 
 			m_arg->nType |= ARG_NUMBER_DECIMAL;
-			m_bIsDecimal = true;
 		}
 	}
 	else if (op == Inputs::Op_Inverse)
@@ -430,6 +418,13 @@ int Processor::ProcessResult()
 				}
 				else
 				{
+					if ((m_arguments[leftArg].niArg % m_arguments[rightArg].niArg) != 0
+						&& !m_bIsDecimal)
+					{
+						ChangeArgumentsToDecimal(false);
+						return ProcessResult();
+					}
+
 					m_arguments[leftArg].niArg /= m_arguments[rightArg].niArg;
 				}
 
@@ -478,8 +473,6 @@ int Processor::ProcessResult()
 
 	// number or operator
 	m_arg = &m_arguments[m_argIdx];
-
-	m_arguments[OS_FIRST_NUM].applyValue();
 	m_arguments[OS_FIRST_NUM].nType = ARG_NUMBER | ARG_NUMBER_RESULT;
 
 	// to do : apply new decimal & inverse
@@ -487,9 +480,15 @@ int Processor::ProcessResult()
 	{
 		m_arguments[OS_FIRST_NUM].nType |= ARG_NUMBER_DECIMAL;
 
-		if (m_arguments[OS_FIRST_NUM].nfArg < -FLT_MIN)
+		if (m_arguments[OS_FIRST_NUM].nfArg < -FLT_EPSILON)
 		{			
 			m_arguments[OS_FIRST_NUM].nType |= ARG_NUMBER_INVERSE;
+		}
+		else if (m_arguments[OS_FIRST_NUM].nfArg < FLT_EPSILON)
+		{			
+			m_bIsDecimal = false;
+			m_arguments[OS_FIRST_NUM].nfArg = NULL;
+			m_arguments[OS_FIRST_NUM].nType ^= ARG_NUMBER_DECIMAL;
 		}
 	}
 	else
@@ -499,6 +498,8 @@ int Processor::ProcessResult()
 			m_arguments[OS_FIRST_NUM].nType |= ARG_NUMBER_INVERSE;
 		}
 	}
+
+	m_arguments[OS_FIRST_NUM].applyValue();
 
 	return Error::OPERATION_SUCESSFUL;
 }
@@ -530,6 +531,32 @@ void Processor::PassInputAsOperator(Argument* pArg, si16 op)
 		pArg->nType = ARG_UNDEFINED;
 		break;
 	}
+}
+
+void Processor::ChangeArgumentsToDecimal(bool skipCurrent)
+{
+	// floating for the first time
+	if (!m_bIsDecimal && m_argIdx >= OS_SECOND_NUM)
+	{
+		int idx = m_argIdx;
+
+		while (idx >= OS_FIRST_NUM)
+		{
+			if (!skipCurrent)
+			{
+				m_arguments[idx].nfArg = m_arguments[idx].niArg;
+				m_arguments[idx].nType |= ARG_NUMBER_DECIMAL;
+			}
+			else
+			{
+				skipCurrent = false;
+			}
+
+			idx -= 2;
+		}
+	}
+
+	m_bIsDecimal = true;
 }
 
 void Processor::NextArgument()

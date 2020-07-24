@@ -97,6 +97,7 @@ private:
 	int	ProcessResult();
 
 	void PassInputAsOperator(Argument* pArg, si16 op);
+	void ChangeArgumentsToDecimal(bool skipCurrent);
 	void NextArgument();
 	void PrevArgument();
 	void ValidateStreamAndText(Argument* pArg, string* text);
