@@ -37,6 +37,11 @@ void Processor::AssignNumber(si16 num)
 		}
 	}
 
+	if (m_arg->nType & ARG_NUMBER_RESULT)
+	{
+		m_arg->nType ^= ARG_NUMBER_RESULT;
+	}
+
 	m_arg->nType |= ARG_NUMBER;
 	(*m_arg) << num;
 	m_text += to_string(num);
@@ -46,6 +51,11 @@ void Processor::AssignOperator(si16 op)
 {
 	if (op == Inputs::Op_Result)
 	{
+		if (m_arg->nType & ARG_NUMBER_RESULT)
+		{
+			return;
+		}
+
 		if (m_arg->nType == ARG_UNDEFINED && m_prevArg && m_prevArg->nType & ARG_OPERATOR)
 		{
 			m_argIdx--;
@@ -55,7 +65,7 @@ void Processor::AssignOperator(si16 op)
 		}
 		else
 		{
-			m_arg->applyStream();
+			m_arg->applyStream(m_bIsDecimal);
 		}
 
 		m_lastError = ProcessResult();
@@ -99,7 +109,7 @@ void Processor::AssignOperator(si16 op)
 
 		if (!(m_arg->nType & ARG_NUMBER_DECIMAL))
 		{
-			if (m_arg->nType == ARG_UNDEFINED)
+			if (m_arg->nType == ARG_UNDEFINED || m_arg->nType & ARG_NUMBER_RESULT)
 			{
 				AssignNumber(Inputs::Number_0);
 			}
@@ -126,9 +136,15 @@ void Processor::AssignOperator(si16 op)
 	}
 	else if (op == Inputs::Op_Inverse)
 	{
-		if (m_arg->nType == ARG_UNDEFINED || atoi(m_arg->str().c_str()) == 0)
+		if (m_arg->nType == ARG_UNDEFINED
+			|| atoi(m_arg->str().c_str()) == 0)
 		{
 			return;
+		}
+
+		if (m_arguments[OS_FIRST_NUM].nType & ARG_NUMBER_RESULT)
+		{
+			m_arguments[OS_FIRST_NUM].nType ^= ARG_NUMBER_RESULT;
 		}
 
 		stringstream operators;
@@ -173,6 +189,11 @@ void Processor::AssignOperator(si16 op)
 	}
 	else
 	{
+		if (m_arguments[OS_FIRST_NUM].nType & ARG_NUMBER_RESULT)
+		{
+			m_arguments[OS_FIRST_NUM].nType ^= ARG_NUMBER_RESULT;
+		}
+
 		if (m_arg->nType == ARG_UNDEFINED && m_prevArg && m_prevArg->nType & ARG_OPERATOR)
 		{
 			m_text.pop_back();
@@ -196,7 +217,7 @@ void Processor::AssignOperator(si16 op)
 				m_lastError = Error::OPERATION_SUCESSFUL;
 			}
 
-			m_prevArg->applyStream();
+			m_prevArg->applyStream(m_bIsDecimal);
 
 			PassInputAsOperator(m_arg, op);
 			
@@ -507,9 +528,9 @@ void Processor::Argument::reset(Argument* pArg)
 	}
 }
 
-void Processor::Argument::applyStream()
+void Processor::Argument::applyStream(bool isDecimal)
 {
-	if (nType & ARG_NUMBER_DECIMAL)
+	if (isDecimal)
 	{
 		nStream >> nfArg;
 	}

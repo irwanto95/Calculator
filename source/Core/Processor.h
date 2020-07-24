@@ -65,7 +65,7 @@ public:
 		sbit16			nType;
 
 		void reset(Argument* pArg = nullptr);
-		void applyStream();
+		void applyStream(bool isDecimal);
 		void applyValue();
 
 		string str() { return nStream.str(); }
