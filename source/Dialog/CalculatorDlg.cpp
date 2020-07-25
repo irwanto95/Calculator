@@ -129,6 +129,16 @@ BOOL CCalculatorDlg::OnInitDialog()
 		}
 	}
 
+	CString appTitle, tmp;
+	ASSERT(tmp.LoadString(IDS_APP_NAME));
+	
+	appTitle.Append(tmp);
+	appTitle.Append(L" - ver ");
+	ASSERT(tmp.LoadString(IDS_APP_VERSION));
+	
+	appTitle.Append(tmp);
+	SetWindowText(appTitle);
+
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon

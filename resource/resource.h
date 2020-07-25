@@ -4,8 +4,8 @@
 //
 #define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
-#define IDS_ABOUTBOX                    101
 #define IDD_CALCULATOR_DIALOG           102
+
 #define IDC_NUM_0                       103
 #define IDC_NUM_1                       104
 #define IDC_NUM_2                       105
@@ -19,8 +19,6 @@
 #define IDC_NUM_000                     113
 #define IDC_POINT                       114
 #define IDC_OUTPUT                      115
-#define IDR_MAINFRAME                   128
-#define IDR_ACCELERATOR                 129
 #define IDC_SIGN                        1000
 #define IDC_CLEAR                       1001
 #define IDC_DELETE                      1002
@@ -29,8 +27,15 @@
 #define IDC_ADDITION                    1005
 #define IDC_SUBTRACTION                 1006
 #define IDC_RESULT                      1007
-#define ID_ACCELERATOR32784             32784
-#define ID_ACCELERATOR32791             32791
+
+#define IDR_MAINFRAME                   128
+#define IDR_ACCELERATOR                 129
+
+#define IDS_ABOUTBOX                    101
+#define IDS_AUTHOR_NAME                 103
+#define IDS_APP_NAME                    102
+#define IDS_APP_VERSION                 104
+
 
 // Next default values for new objects
 // 
