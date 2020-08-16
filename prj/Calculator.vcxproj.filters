@@ -54,6 +54,9 @@
     <ClInclude Include="..\source\Core\Inputs.h">
       <Filter>include\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\Dialog\VariableRegisterForm.h">
+      <Filter>include\Dialog</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\Dialog\CalculatorDlg.cpp">
@@ -70,6 +73,9 @@
     </ClCompile>
     <ClCompile Include="..\source\Core\Inputs.cpp">
       <Filter>source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Dialog\VariableRegisterForm.cpp">
+      <Filter>source\Dialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

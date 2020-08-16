@@ -23,6 +23,7 @@
     <ClCompile Include="..\source\Core\Inputs.cpp" />
     <ClCompile Include="..\source\Core\Processor.cpp" />
     <ClCompile Include="..\source\Dialog\CalculatorDlg.cpp" />
+    <ClCompile Include="..\source\Dialog\VariableRegisterForm.cpp" />
     <ClCompile Include="..\source\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -38,6 +39,7 @@
     <ClInclude Include="..\source\Core\Inputs.h" />
     <ClInclude Include="..\source\Core\Processor.h" />
     <ClInclude Include="..\source\Dialog\CalculatorDlg.h" />
+    <ClInclude Include="..\source\Dialog\VariableRegisterForm.h" />
     <ClInclude Include="..\source\framework.h" />
     <ClInclude Include="..\source\pch.h" />
   </ItemGroup>

@@ -6,12 +6,20 @@
 #include "framework.h"
 #include "Calculator.h"
 #include "CalculatorDlg.h"
+#include "VariableRegisterForm.h"
+
+#include <fstream>
 #include "afxdialogex.h"
+
+#include "mfUtils/Utils/Utils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+#define CHAR_BUFFER_MAX 2048
+
+static const char* s_variableListFileName = "variable.bin";
 
 // CAboutDlg dialog used for App About
 
@@ -61,6 +69,7 @@ void CCalculatorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_OUTPUT, m_outputText);
+	DDX_Control(pDX, IDC_LIST_VARIABLE, m_listVariable);
 }
 
 BOOL CCalculatorDlg::PreTranslateMessage(MSG* pMsg)
@@ -100,6 +109,7 @@ BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_ADDITION, &CCalculatorDlg::OnBnClickedAddition)
 	ON_BN_CLICKED(IDC_SUBTRACTION, &CCalculatorDlg::OnBnClickedSubtraction)
 	ON_BN_CLICKED(IDC_RESULT, &CCalculatorDlg::OnBnClickedResult)
+	ON_BN_CLICKED(IDC_BTN_VAR_ADD, &CCalculatorDlg::OnBnClickedVarAdd)
 END_MESSAGE_MAP()
 
 
@@ -138,6 +148,8 @@ BOOL CCalculatorDlg::OnInitDialog()
 	
 	appTitle.Append(tmp);
 	SetWindowText(appTitle);
+
+	LoadVariable();
 
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
@@ -197,6 +209,98 @@ void CCalculatorDlg::OnPaint()
 HCURSOR CCalculatorDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+CString CCalculatorDlg::ConcatenateVariable(const Variable& var)
+{
+	CString result;
+	result.Append(var.nName);
+	result.Append(CString(":"));
+	result.Append(var.nValue);
+
+	return result;
+}
+
+void CCalculatorDlg::SaveVariable()
+{
+	fstream file;
+	file.open(s_variableListFileName, fstream::out | fstream::trunc | fstream::binary);
+
+	if (file.is_open())
+	{
+		CString _str;
+		string _sstr;
+
+		char* buffer;
+		int vcount = m_listVariable.GetCount();
+		int sz, pos = 0;
+
+		buffer = new char[CHAR_BUFFER_MAX];
+		
+		sz = sizeof(int);
+		memcpy(&buffer[pos], &vcount, sz);
+		pos += sz;
+
+		for (usize i = 0; i < vcount; i++)
+		{
+			m_listVariable.GetText(i, _str);
+			_sstr = CW2A(_str.GetString());
+			sz = _str.GetLength();
+
+			memcpy(&buffer[pos], &sz, sizeof(int));
+			pos += sizeof(int);
+
+			memcpy(&buffer[pos], _sstr.c_str(), sz);
+			pos += sz;
+		}
+
+		file.write(buffer, pos);
+
+		delete[] buffer;
+	}
+
+	file.close();
+}
+
+void CCalculatorDlg::LoadVariable()
+{
+	fstream file;
+	file.open(s_variableListFileName, fstream::in | fstream::binary);
+
+	if (file.is_open())
+	{
+		file.seekg(0, file.end);
+		usize buffsize = file.tellg();
+		file.seekg(0, file.beg);
+
+		char* buffer = new char[buffsize];
+
+		int vcount, sz, pos = 0;
+
+		file.read(buffer, buffsize);
+
+		sz = sizeof(int);
+		memcpy(&vcount, &buffer[pos], sz);
+		pos += sz;
+
+		for (usize i = 0; i < vcount; i++)
+		{
+			memcpy(&sz, &buffer[pos], sizeof(int));
+			pos += sizeof(int);
+
+			string _sstr;
+			_sstr.resize(sz);
+
+			memcpy(&_sstr[0], &buffer[pos], sz);
+			pos += sz;
+
+			m_listVariable.AddString(utils::MFCUtils::ToLPCTSTR(_sstr));
+		}
+
+		delete[] buffer;
+	}
+
+	file.close();
 }
 
 void CCalculatorDlg::OnBnClickedNum1()
@@ -358,4 +462,15 @@ void CCalculatorDlg::OnBnClickedResult()
 	m_processor.AssignOperator(Inputs::Op_Result);
 	m_outputText = m_processor.GetTextC();
 	UpdateData(FALSE);
+}
+
+
+void CCalculatorDlg::OnBnClickedVarAdd()
+{
+	CVariableRegisterForm varReg;
+	varReg.DoModal();
+
+	m_listVariable.AddString(ConcatenateVariable(varReg.GetVariable()));
+
+	SaveVariable();
 }

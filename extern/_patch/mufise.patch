@@ -1,0 +1,40 @@
+Index: mfUtils/prj/mfUtils.vcxproj
+===================================================================
+--- mfUtils/prj/mfUtils.vcxproj	(revision 16)
++++ mfUtils/prj/mfUtils.vcxproj	(working copy)
+@@ -110,7 +110,7 @@
+       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <PrecompiledHeader>Use</PrecompiledHeader>
+       <PrecompiledHeaderFile>mfUtils/pch.h</PrecompiledHeaderFile>
+-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+     </ClCompile>
+     <Link>
+       <SubSystem>Console</SubSystem>
+@@ -125,7 +125,7 @@
+       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <PrecompiledHeader>Use</PrecompiledHeader>
+       <PrecompiledHeaderFile>mfUtils/pch.h</PrecompiledHeaderFile>
+-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+     </ClCompile>
+     <Link>
+       <SubSystem>Console</SubSystem>
+@@ -142,7 +142,7 @@
+       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <PrecompiledHeader>Use</PrecompiledHeader>
+       <PrecompiledHeaderFile>mfUtils/pch.h</PrecompiledHeaderFile>
+-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+     </ClCompile>
+     <Link>
+       <SubSystem>Console</SubSystem>
+@@ -161,7 +161,7 @@
+       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <PrecompiledHeader>Use</PrecompiledHeader>
+       <PrecompiledHeaderFile>mfUtils/pch.h</PrecompiledHeaderFile>
+-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+     </ClCompile>
+     <Link>
+       <SubSystem>Console</SubSystem>

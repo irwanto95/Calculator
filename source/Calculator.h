@@ -8,8 +8,6 @@
 	#error "include 'pch.h' before including this file for PCH"
 #endif
 
-#include "resource.h"		// main symbols
-
 
 // CalculatorApp:
 // See Calculator.cpp for the implementation of this class

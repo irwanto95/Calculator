@@ -2,6 +2,8 @@
 
 #include "Core/Processor.h"
 
+struct Variable;
+
 // CCalculatorDlg dialog
 class CCalculatorDlg : public CDialogEx
 {
@@ -38,21 +40,29 @@ protected:
 	afx_msg void OnBnClickedAddition();
 	afx_msg void OnBnClickedSubtraction();
 	afx_msg void OnBnClickedResult();
+	afx_msg void OnBnClickedVarAdd();
 
 // Implementation
 protected:
-	HICON m_hIcon;
-	HACCEL m_hAccel;
-
-	// Generated message map functions
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+	
+	// Generated message map functions
 	DECLARE_MESSAGE_MAP()
 
 private:
-	// Show the output
-	Processor m_processor;
-	CString m_outputText;
+	CString ConcatenateVariable(const Variable& var);
+	void	SaveVariable();
+	void	LoadVariable();
+
+protected:
+	HICON	m_hIcon;
+	HACCEL	m_hAccel;
+
+private:
+	Processor	m_processor;
+	CListBox	m_listVariable;
+	CString		m_outputText;
 };

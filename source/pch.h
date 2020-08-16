@@ -7,12 +7,13 @@
 #ifndef PCH_H
 #define PCH_H
 
-#include "mfupch.h"
+#include "mfUtils/pch.h"
 
 // add headers that you want to pre-compile here
 #include <string>
 #include <iostream>
 
+#include "resource.h"		// main symbols
 #include "framework.h"
 #include "Constants.hpp"
 
