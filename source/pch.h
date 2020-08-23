@@ -17,6 +17,8 @@
 #include "framework.h"
 #include "Constants.hpp"
 
+#include "mfUtils/Utils/Utils.h"
+
 using namespace std;
 using namespace mufise;
 

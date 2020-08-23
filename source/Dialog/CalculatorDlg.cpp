@@ -11,8 +11,6 @@
 #include <fstream>
 #include "afxdialogex.h"
 
-#include "mfUtils/Utils/Utils.h"
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -109,7 +107,9 @@ BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_ADDITION, &CCalculatorDlg::OnBnClickedAddition)
 	ON_BN_CLICKED(IDC_SUBTRACTION, &CCalculatorDlg::OnBnClickedSubtraction)
 	ON_BN_CLICKED(IDC_RESULT, &CCalculatorDlg::OnBnClickedResult)
-	ON_BN_CLICKED(IDC_BTN_VAR_ADD, &CCalculatorDlg::OnBnClickedVarAdd)
+	ON_BN_CLICKED(IDC_BTN_VAR_ADD, &CCalculatorDlg::OnBnClickedBtnVarAdd)
+	ON_BN_CLICKED(IDC_BTN_VAR_DELETE, &CCalculatorDlg::OnBnClickedBtnVarDelete)
+	ON_BN_CLICKED(IDC_BTN_VAR_EDIT, &CCalculatorDlg::OnBnClickedBtnVarEdit)
 END_MESSAGE_MAP()
 
 
@@ -150,6 +150,7 @@ BOOL CCalculatorDlg::OnInitDialog()
 	SetWindowText(appTitle);
 
 	LoadVariable();
+	UpdateButton();
 
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
@@ -209,16 +210,6 @@ void CCalculatorDlg::OnPaint()
 HCURSOR CCalculatorDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
-}
-
-CString CCalculatorDlg::ConcatenateVariable(const Variable& var)
-{
-	CString result;
-	result.Append(var.nName);
-	result.Append(CString(":"));
-	result.Append(var.nValue);
-
-	return result;
 }
 
 void CCalculatorDlg::SaveVariable()
@@ -301,6 +292,20 @@ void CCalculatorDlg::LoadVariable()
 	}
 
 	file.close();
+}
+
+void CCalculatorDlg::UpdateButton()
+{
+	if (m_listVariable.GetCount() > 0)
+	{
+		GetDlgItem(IDC_BTN_VAR_EDIT)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BTN_VAR_DELETE)->EnableWindow(TRUE);
+	}
+	else
+	{
+		GetDlgItem(IDC_BTN_VAR_EDIT)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BTN_VAR_DELETE)->EnableWindow(FALSE);
+	}
 }
 
 void CCalculatorDlg::OnBnClickedNum1()
@@ -465,12 +470,56 @@ void CCalculatorDlg::OnBnClickedResult()
 }
 
 
-void CCalculatorDlg::OnBnClickedVarAdd()
+void CCalculatorDlg::OnBnClickedBtnVarAdd()
 {
 	CVariableRegisterForm varReg;
 	varReg.DoModal();
 
-	m_listVariable.AddString(ConcatenateVariable(varReg.GetVariable()));
+	const Variable& var = varReg.GetVariable();
+
+	if (!var.nName.IsEmpty())
+	{
+		m_listVariable.AddString(CVariableRegisterForm::ConcatenateVariable(varReg.GetVariable()));
+
+		SaveVariable();
+		UpdateButton();
+	}
+}
+
+
+void CCalculatorDlg::OnBnClickedBtnVarDelete()
+{
+	si16 idx = m_listVariable.GetCurSel();
+	if (idx < 0)
+		return;
+
+	m_listVariable.DeleteString(idx);
 
 	SaveVariable();
+	UpdateButton();
+}
+
+
+void CCalculatorDlg::OnBnClickedBtnVarEdit()
+{
+	si16 idx = m_listVariable.GetCurSel();
+	if (idx < 0)
+		return;
+
+	CString selectedStr;
+	m_listVariable.GetText(idx, selectedStr);
+
+	CVariableRegisterForm varReg(selectedStr);
+	varReg.DoModal();
+
+	const Variable& var = varReg.GetVariable();
+
+	if (!var.nName.IsEmpty())
+	{
+		m_listVariable.DeleteString(idx);
+		m_listVariable.InsertString(idx, CVariableRegisterForm::ConcatenateVariable(varReg.GetVariable()));
+
+		SaveVariable();
+		UpdateButton();
+	}
 }

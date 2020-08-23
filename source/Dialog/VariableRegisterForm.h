@@ -23,7 +23,12 @@ class CVariableRegisterForm : public CDialogEx
 
 public:
 	CVariableRegisterForm(CWnd* pParent = nullptr);   // standard constructor
+	CVariableRegisterForm(const Variable& var, CWnd* pParent = nullptr);
+	CVariableRegisterForm(const CString& str, CWnd* pParent = nullptr);
 	virtual ~CVariableRegisterForm();
+
+	static Variable ConstructVariable(const CString& str);
+	static CString	ConcatenateVariable(const Variable& var);
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
@@ -33,6 +38,7 @@ public:
 	const Variable& GetVariable() { return m_variable; }
 
 	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClickedCancel();
 
 protected:
 	virtual BOOL OnInitDialog();

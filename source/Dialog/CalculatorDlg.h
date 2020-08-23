@@ -40,7 +40,9 @@ protected:
 	afx_msg void OnBnClickedAddition();
 	afx_msg void OnBnClickedSubtraction();
 	afx_msg void OnBnClickedResult();
-	afx_msg void OnBnClickedVarAdd();
+	afx_msg void OnBnClickedBtnVarAdd();
+	afx_msg void OnBnClickedBtnVarDelete();
+	afx_msg void OnBnClickedBtnVarEdit();
 
 // Implementation
 protected:
@@ -53,9 +55,9 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	CString ConcatenateVariable(const Variable& var);
 	void	SaveVariable();
 	void	LoadVariable();
+	void	UpdateButton();
 
 protected:
 	HICON	m_hIcon;
