@@ -1,3 +1,35 @@
+Index: mfUtils/include/mfUtils/Utils/Utils.cpp
+===================================================================
+--- mfUtils/include/mfUtils/Utils/Utils.cpp	(revision 16)
++++ mfUtils/include/mfUtils/Utils/Utils.cpp	(working copy)
+@@ -22,5 +22,10 @@
+ 			return LPCTSTR(str);
+ #endif // UNICODE		
+ 		}
++
++		bool MFCUtils::IsEqual(float a, float b, float epsilon)
++		{
++			return (fabs(a - b) < epsilon);
++		}
+ 	}
+ }
+\ No newline at end of file
+Index: mfUtils/include/mfUtils/Utils/Utils.h
+===================================================================
+--- mfUtils/include/mfUtils/Utils/Utils.h	(revision 16)
++++ mfUtils/include/mfUtils/Utils/Utils.h	(working copy)
+@@ -10,8 +10,9 @@
+ 		class MFCUtils
+ 		{
+ 		public:
+-			static LPCTSTR ToLPCTSTR(const std::string& str);
+-			static LPCTSTR ToLPCTSTR(const char* str);
++			static LPCTSTR	ToLPCTSTR(const std::string& str);
++			static LPCTSTR	ToLPCTSTR(const char* str);
++			static bool		IsEqual(float a, float b, float epsilon = FLT_EPSILON);
+ 		};
+ 	}
+ }
 Index: mfUtils/prj/mfUtils.vcxproj
 ===================================================================
 --- mfUtils/prj/mfUtils.vcxproj	(revision 16)

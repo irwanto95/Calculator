@@ -85,7 +85,9 @@ public:
 	Processor();
 	~Processor();
 
-	void AssignNumber(si16 num);
+	void AssignNumber(si16 number);
+	void AssignValue(int value);
+	void AssignValue(float value, int decimalDigit);
 	void AssignOperator(si16 op);
 	void Clear();
 	void EraseBack();
@@ -94,6 +96,9 @@ public:
 	const char*		GetTextC() { return m_text.c_str(); }
 
 private:
+	template <typename _Type>
+	void AssignValueInternal(_Type value, int decimalDigit);
+	
 	int	ProcessResult();
 
 	void PassInputAsOperator(Argument* pArg, si16 op);

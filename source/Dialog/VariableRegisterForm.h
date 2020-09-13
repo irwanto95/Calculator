@@ -7,12 +7,12 @@ struct Variable
 	{
 		nName = "";
 		nValue = "";
-		nIsDecimal = false;
+		nDecimalDigit = 0;
 	}
 
-	CString nName;
-	CString	nValue;
-	bool	nIsDecimal;
+	CString			nName;
+	CString			nValue;
+	unsigned int	nDecimalDigit;
 };
 
 // CVariableRegisterForm dialog
@@ -27,8 +27,8 @@ public:
 	CVariableRegisterForm(const CString& str, CWnd* pParent = nullptr);
 	virtual ~CVariableRegisterForm();
 
-	static Variable ConstructVariable(const CString& str);
-	static CString	ConcatenateVariable(const Variable& var);
+	static Variable StringToVariable(const CString& str);
+	static CString	VariableToString(const Variable& var);
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
@@ -45,9 +45,6 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
-
-private:
-	bool ValidateValue();
 
 private:
 	Variable	m_variable;

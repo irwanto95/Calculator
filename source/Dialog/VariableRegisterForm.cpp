@@ -27,35 +27,48 @@ CVariableRegisterForm::CVariableRegisterForm(const Variable& var, CWnd* pParent)
 CVariableRegisterForm::CVariableRegisterForm(const CString& str, CWnd* pParent)
 	: CVariableRegisterForm(pParent)
 {
-	m_variable = ConstructVariable(str);
+	m_variable = StringToVariable(str);
 }
 
 CVariableRegisterForm::~CVariableRegisterForm()
 {
 }
 
-Variable CVariableRegisterForm::ConstructVariable(const CString& str)
+Variable CVariableRegisterForm::StringToVariable(const CString& str)
 {
 	Variable result;
 
-	si16 separator = str.Find(_T(':'));
-	if (separator > -1)
+	si16 nameSeparator = str.Find(_T(':'));
+	if (nameSeparator > -1)
 	{
-		result.nName = str.Left(separator);
-		result.nValue = str.Right(str.GetLength() - 1 - separator);
+		result.nName = str.Left(nameSeparator);
+		
+		si16 digitSeparator = str.Find(_T(':'), ++nameSeparator);
+		if (digitSeparator > -1)
+		{
+			string strDig = CW2A(str.Mid(nameSeparator, digitSeparator - nameSeparator));
+			result.nDecimalDigit = atoi(strDig.c_str());
+			result.nValue = str.Right(str.GetLength() - ++digitSeparator);
+		}
+		else
+		{
+			MF_ASSERT(digitSeparator > -1);
+		}
 	}
 	else
 	{
-		MF_ASSERT(separator > -1);
+		MF_ASSERT(nameSeparator > -1);
 	}
 
 	return result;
 }
 
-CString CVariableRegisterForm::ConcatenateVariable(const Variable& var)
+CString CVariableRegisterForm::VariableToString(const Variable& var)
 {
 	CString result;
 	result.Append(var.nName);
+	result.Append(CString(":"));
+	result.Append(utils::MFCUtils::ToLPCTSTR(std::to_string(var.nDecimalDigit)));
 	result.Append(CString(":"));
 	result.Append(var.nValue);
 
@@ -126,23 +139,47 @@ void CVariableRegisterForm::OnBnClickedOk()
 
 	bool isValid = !_strName.empty()
 		&& !_strVal.empty()
-		&& (_strVal.find_first_not_of(".0123456789") == std::string::npos);
+		&& (_strVal.find_first_not_of("-.0123456789") == std::string::npos);
 	
-	if (isValid)
+	si8 repetitions = 2;
+
+	for (si8 i = 0; isValid && i < repetitions; i++)
 	{
-		int pointIdx = _strVal.find('.');
-		if (pointIdx > -1)
+		switch (i)
 		{
-			// looking for the secont point
-			isValid = _strVal.find('.', pointIdx + 1) == string::npos;
+		case 0:
+		{
+			int minusIdx = _strVal.find(k_op_subtraction);
+			isValid = (minusIdx <= 0);
 			if (isValid)
 			{
-				m_variable.nIsDecimal = true;
+				// looking for the secont sign
+				isValid = _strVal.find(k_op_subtraction, minusIdx + 1) == string::npos;
 			}
+
+			break;
 		}
-		else
+		case 1:
 		{
-			m_variable.nIsDecimal = false;
+			int pointIdx = _strVal.find(k_op_point);
+			if (pointIdx > -1)
+			{
+				// looking for the secont point
+				isValid = _strVal.find(k_op_point, ++pointIdx) == string::npos;
+				if (isValid)
+				{
+					m_variable.nDecimalDigit = _strVal.size() - pointIdx;
+				}
+			}
+			else
+			{
+				m_variable.nDecimalDigit = 0;
+			}
+
+			break;
+		}
+		default:
+			break;
 		}
 	}
 

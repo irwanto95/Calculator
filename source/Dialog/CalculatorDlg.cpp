@@ -110,6 +110,8 @@ BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_VAR_ADD, &CCalculatorDlg::OnBnClickedBtnVarAdd)
 	ON_BN_CLICKED(IDC_BTN_VAR_DELETE, &CCalculatorDlg::OnBnClickedBtnVarDelete)
 	ON_BN_CLICKED(IDC_BTN_VAR_EDIT, &CCalculatorDlg::OnBnClickedBtnVarEdit)
+	ON_LBN_SELCHANGE(IDC_LIST_VARIABLE, &CCalculatorDlg::OnLbnSelchangeListVariable)
+	ON_LBN_DBLCLK(IDC_LIST_VARIABLE, &CCalculatorDlg::OnLbnDblclkListVariable)
 END_MESSAGE_MAP()
 
 
@@ -296,7 +298,7 @@ void CCalculatorDlg::LoadVariable()
 
 void CCalculatorDlg::UpdateButton()
 {
-	if (m_listVariable.GetCount() > 0)
+	if (m_listVariable.GetCurSel() != LB_ERR)
 	{
 		GetDlgItem(IDC_BTN_VAR_EDIT)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_VAR_DELETE)->EnableWindow(TRUE);
@@ -479,7 +481,7 @@ void CCalculatorDlg::OnBnClickedBtnVarAdd()
 
 	if (!var.nName.IsEmpty())
 	{
-		m_listVariable.AddString(CVariableRegisterForm::ConcatenateVariable(varReg.GetVariable()));
+		m_listVariable.AddString(CVariableRegisterForm::VariableToString(varReg.GetVariable()));
 
 		SaveVariable();
 		UpdateButton();
@@ -494,6 +496,15 @@ void CCalculatorDlg::OnBnClickedBtnVarDelete()
 		return;
 
 	m_listVariable.DeleteString(idx);
+
+	if (idx < m_listVariable.GetCount())
+	{
+		m_listVariable.SetCurSel(idx);
+	}
+	else if (m_listVariable.GetCount() > 0)
+	{
+		m_listVariable.SetCurSel(idx - 1);
+	}
 
 	SaveVariable();
 	UpdateButton();
@@ -513,13 +524,50 @@ void CCalculatorDlg::OnBnClickedBtnVarEdit()
 	varReg.DoModal();
 
 	const Variable& var = varReg.GetVariable();
-
 	if (!var.nName.IsEmpty())
 	{
 		m_listVariable.DeleteString(idx);
-		m_listVariable.InsertString(idx, CVariableRegisterForm::ConcatenateVariable(varReg.GetVariable()));
+		m_listVariable.InsertString(idx, CVariableRegisterForm::VariableToString(varReg.GetVariable()));
+		m_listVariable.SetCurSel(idx);
 
 		SaveVariable();
 		UpdateButton();
 	}
+}
+
+
+void CCalculatorDlg::OnLbnSelchangeListVariable()
+{
+	UpdateButton();
+}
+
+
+void CCalculatorDlg::OnLbnDblclkListVariable()
+{
+	si16 idx = m_listVariable.GetCurSel();
+	if (idx < 0)
+		return;
+
+	CString selectedStr;
+	m_listVariable.GetText(idx, selectedStr);
+
+	m_processor.AssignOperator(Inputs::Op_Addition);
+	
+	Variable var = CVariableRegisterForm::StringToVariable(selectedStr);
+	std::string strVal = CW2A(var.nValue.GetString());
+
+	if (var.nDecimalDigit > 0)
+	{
+		float v = atof(strVal.c_str());
+		m_processor.AssignValue(v, var.nDecimalDigit);
+	}
+	else
+	{
+		int v = atoi(strVal.c_str());
+		m_processor.AssignValue(v);
+	}
+	
+	m_processor.AssignOperator(Inputs::Op_Addition);
+	m_outputText = m_processor.GetTextC();
+	UpdateData(FALSE);
 }

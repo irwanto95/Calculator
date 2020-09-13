@@ -43,6 +43,8 @@ protected:
 	afx_msg void OnBnClickedBtnVarAdd();
 	afx_msg void OnBnClickedBtnVarDelete();
 	afx_msg void OnBnClickedBtnVarEdit();
+	afx_msg void OnLbnSelchangeListVariable();
+	afx_msg void OnLbnDblclkListVariable();
 
 // Implementation
 protected:

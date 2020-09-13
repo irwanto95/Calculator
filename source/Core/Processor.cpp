@@ -10,8 +10,39 @@ Processor::~Processor()
 {
 }
 
-void Processor::AssignNumber(si16 num)
+void Processor::AssignNumber(si16 number)
 {
+	AssignValueInternal(number, 0);
+}
+
+void Processor::AssignValue(int value)
+{
+	AssignValueInternal(abs(value), 0);
+
+	if (value < 0)
+	{
+		AssignOperator(Inputs::Op_Inverse);
+	}
+}
+
+void Processor::AssignValue(float value, int decimalDigit)
+{
+	AssignValueInternal(fabs(value), decimalDigit);
+
+	m_arg->nType |= ARG_NUMBER_DECIMAL;
+	ChangeArgumentsToDecimal(true);
+
+	if (value < FLT_EPSILON)
+	{
+		AssignOperator(Inputs::Op_Inverse);
+	}
+}
+
+template <typename _Type>
+void Processor::AssignValueInternal(_Type value, int decimalDigit)
+{
+	bool isDecimal = (decimalDigit > 0);
+
 	// initial state or not decimal result argument
 	if ((!m_prevArg && m_arg->nType == ARG_UNDEFINED)
 		|| (m_arg->nType & ARG_NUMBER_RESULT && atoi(m_arg->str().c_str()) != 0))
@@ -26,7 +57,8 @@ void Processor::AssignNumber(si16 num)
 		&& atoi(m_arg->str().c_str()) == 0 
 		&& !(m_arg->nType & ARG_NUMBER_DECIMAL))
 	{
-		if (num == 0)
+		if ((isDecimal && utils::MFCUtils::IsEqual(value, 0.f))
+			|| (!isDecimal && value == 0))
 		{
 			return;
 		}
@@ -41,10 +73,28 @@ void Processor::AssignNumber(si16 num)
 	{
 		m_arg->nType ^= ARG_NUMBER_RESULT;
 	}
-
+	
 	m_arg->nType |= ARG_NUMBER;
-	(*m_arg) << num;
-	m_text += to_string(num);
+	(*m_arg) << value;
+
+	if (isDecimal)
+	{
+		// avoiding text has different decimal digit with it's value
+		const int BUFF_MAX = 2048;
+		char tmp[BUFF_MAX];
+		string arg;
+		arg += "%.";
+		arg += to_string(decimalDigit);
+		arg += 'f';
+
+		sprintf_s(tmp, BUFF_MAX, arg.c_str(), value);
+
+		m_text += tmp;
+	}
+	else
+	{
+		m_text += to_string(value);
+	}
 }
 
 void Processor::AssignOperator(si16 op)
@@ -127,8 +177,18 @@ void Processor::AssignOperator(si16 op)
 	}
 	else if (op == Inputs::Op_Inverse)
 	{
-		if (m_arg->nType == ARG_UNDEFINED
-			|| atoi(m_arg->str().c_str()) == 0)
+		if (m_arg->nType == ARG_UNDEFINED)
+		{
+			return;
+		}
+		else if (m_arg->nType & ARG_NUMBER_DECIMAL)
+		{
+			if (utils::MFCUtils::IsEqual(atof(m_arg->str().c_str()), 0.f))
+			{
+				return;
+			}
+		}
+		else if (atoi(m_arg->str().c_str()) == 0)
 		{
 			return;
 		}
