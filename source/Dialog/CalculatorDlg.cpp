@@ -17,6 +17,12 @@
 
 #define CHAR_BUFFER_MAX 2048
 
+#define ON_BUTTON_CLICKED(doFunction)	\
+m_processor.doFunction;					\
+m_outputText = m_processor.GetTextC();	\
+UpdateData(FALSE);						\
+
+
 static const char* s_variableListFileName = "variable.bin";
 
 // CAboutDlg dialog used for App About
@@ -312,81 +318,61 @@ void CCalculatorDlg::UpdateButton()
 
 void CCalculatorDlg::OnBnClickedNum1()
 {
-	m_processor.AssignNumber(Inputs::Number_1);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_1));
 }
 
 
 void CCalculatorDlg::OnBnClickedNum2()
 {
-	m_processor.AssignNumber(Inputs::Number_2);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_2));
 }
 
 
 void CCalculatorDlg::OnBnClickedNum3()
 {
-	m_processor.AssignNumber(Inputs::Number_3);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_3));
 }
 
 
 void CCalculatorDlg::OnBnClickedNum4()
 {
-	m_processor.AssignNumber(Inputs::Number_4);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_4));
 }
 
 
 void CCalculatorDlg::OnBnClickedNum5()
 {
-	m_processor.AssignNumber(Inputs::Number_5);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_5));
 }
 
 
 void CCalculatorDlg::OnBnClickedNum6()
 {
-	m_processor.AssignNumber(Inputs::Number_6);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_6));
 }
 
 
 void CCalculatorDlg::OnBnClickedNum7()
 {
-	m_processor.AssignNumber(Inputs::Number_7);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_7));
 }
 
 
 void CCalculatorDlg::OnBnClickedNum8()
 {
-	m_processor.AssignNumber(Inputs::Number_8);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_8));
 }
 
 
 void CCalculatorDlg::OnBnClickedNum9()
 {
-	m_processor.AssignNumber(Inputs::Number_9);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_9));
 }
 
 
 void CCalculatorDlg::OnBnClickedNum0()
 {
-	m_processor.AssignNumber(Inputs::Number_0);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_0));
 }
 
 
@@ -394,81 +380,61 @@ void CCalculatorDlg::OnBnClickedNum000()
 {
 	m_processor.AssignNumber(Inputs::Number_0);
 	m_processor.AssignNumber(Inputs::Number_0);
-	m_processor.AssignNumber(Inputs::Number_0);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignNumber(Inputs::Number_0));
 }
 
 
 void CCalculatorDlg::OnBnClickedPoint()
 {
-	m_processor.AssignOperator(Inputs::Op_Point);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignOperator(Inputs::Op_Point));
 }
 
 
 void CCalculatorDlg::OnBnClickedSign()
 {
-	m_processor.AssignOperator(Inputs::Op_Inverse);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignOperator(Inputs::Op_Inverse));
 }
 
 
 void CCalculatorDlg::OnBnClickedClear()
 {
-	m_processor.Clear();
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(Clear());
 }
 
 
 void CCalculatorDlg::OnBnClickedDelete()
 {
-	m_processor.EraseBack();
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(EraseBack());
 }
 
 
 void CCalculatorDlg::OnBnClickedMultiplication()
 {
-	m_processor.AssignOperator(Inputs::Op_Multiplication);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignOperator(Inputs::Op_Multiplication));
 }
 
 
 void CCalculatorDlg::OnBnClickedDivision()
 {
-	m_processor.AssignOperator(Inputs::Op_Division);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignOperator(Inputs::Op_Division));
 }
 
 
 void CCalculatorDlg::OnBnClickedAddition()
 {
-	m_processor.AssignOperator(Inputs::Op_Addition);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignOperator(Inputs::Op_Addition));
 }
 
 
 void CCalculatorDlg::OnBnClickedSubtraction()
 {
-	m_processor.AssignOperator(Inputs::Op_Subtraction);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignOperator(Inputs::Op_Subtraction));
 }
 
 
 void CCalculatorDlg::OnBnClickedResult()
 {
-	m_processor.AssignOperator(Inputs::Op_Result);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignOperator(Inputs::Op_Result));
 }
 
 
@@ -567,7 +533,5 @@ void CCalculatorDlg::OnLbnDblclkListVariable()
 		m_processor.AssignValue(v);
 	}
 	
-	m_processor.AssignOperator(Inputs::Op_Addition);
-	m_outputText = m_processor.GetTextC();
-	UpdateData(FALSE);
+	ON_BUTTON_CLICKED(AssignOperator(Inputs::Op_Addition));
 }
