@@ -44,8 +44,8 @@ void Processor::AssignValueInternal(_Type value, int decimalDigit)
 	bool isDecimal = (decimalDigit > 0);
 
 	// initial state or not decimal result argument
-	if ((!m_prevArg && m_arg->nType == ARG_UNDEFINED)
-		|| (m_arg->nType & ARG_NUMBER_RESULT && atoi(m_arg->str().c_str()) != 0))
+	if ((!m_prevArg && !m_arg->isInitialized())
+		|| (m_arg->nType & ARG_NUMBER_RESULT && m_arg->svali() != 0))
 	{
 		m_arg->reset();
 		m_text.clear();
@@ -53,8 +53,8 @@ void Processor::AssignValueInternal(_Type value, int decimalDigit)
 		m_bIsDecimal = false;
 	}
 	// stream value is 0 and not a decimal number
-	else if (m_arg->nType != ARG_UNDEFINED 
-		&& atoi(m_arg->str().c_str()) == 0 
+	else if (m_arg->isInitialized()
+		&& m_arg->svali() == 0
 		&& !(m_arg->nType & ARG_NUMBER_DECIMAL))
 	{
 		if ((isDecimal && equals(value, 0.f))
@@ -106,7 +106,7 @@ void Processor::AssignOperator(si16 op)
 			return;
 		}
 
-		if (m_arg->nType == ARG_UNDEFINED && m_prevArg && m_prevArg->nType & ARG_OPERATOR)
+		if (!m_arg->isInitialized() && m_prevArg && m_prevArg->nType & ARG_OPERATOR)
 		{
 			PrevArgument(); // set to operator
 			MF_ASSERT(m_arg->nType & ARG_OPERATOR);
@@ -122,39 +122,8 @@ void Processor::AssignOperator(si16 op)
 		}
 
 		m_lastError = ProcessResult();
-
-		if (m_lastError == Error::OPERATION_SUCESSFUL)
-		{
-			MF_ASSERT_MSG(m_argIdx == OS_FIRST_ARG, "Something wrong on ProcessResult !");
-
-			m_text.clear();
-
-			if (m_arguments[OS_FIRST_NUM].nType & ARG_NUMBER_INVERSE)
-			{
-				m_text += k_open_parenthesis;
-			}
-
-			m_text += m_arguments[OS_FIRST_NUM].str();
-
-			m_arguments.resize(OS_MAX_ARG_COUNT);
-			m_prevArg = NULL;
-
-			ValidateStreamAndText(&m_arguments[OS_FIRST_NUM], &m_text);
-		}
-		else
-		{
-			switch (m_lastError)
-			{
-			case Processor::OPERATION_EXCEPTION_DIV_ZERO:
-				Clear();
-				m_text = k_exceptionMsgDivZero;
-				return;
-			case Processor::OPERATION_EXCEPTION_DIV_ZERO_INF:
-				Clear();
-				m_text = k_exceptionMsgDivZeroInf;
-				return;
-			}
-		}
+		m_prevArg = NULL;
+		MF_ASSERT_MSG(m_argIdx == OS_FIRST_ARG, "Something wrong on ProcessResult !");
 	}
 	else if (op == Inputs::Op_Point)
 	{
@@ -162,7 +131,7 @@ void Processor::AssignOperator(si16 op)
 
 		if (!(m_arg->nType & ARG_NUMBER_DECIMAL))
 		{
-			if (m_arg->nType == ARG_UNDEFINED || m_arg->nType & ARG_NUMBER_RESULT)
+			if (!m_arg->isInitialized() || m_arg->nType & ARG_NUMBER_RESULT)
 			{
 				AssignNumber(Inputs::Number_0);
 			}
@@ -177,18 +146,9 @@ void Processor::AssignOperator(si16 op)
 	}
 	else if (op == Inputs::Op_Inverse)
 	{
-		if (m_arg->nType == ARG_UNDEFINED)
-		{
-			return;
-		}
-		else if (m_arg->nType & ARG_NUMBER_DECIMAL)
-		{
-			if (equals(atof(m_arg->str().c_str()), 0.))
-			{
-				return;
-			}
-		}
-		else if (atoi(m_arg->str().c_str()) == 0)
+		if (!m_arg->isInitialized()
+			|| (m_arg->nType & ARG_NUMBER_DECIMAL && equals(m_arg->svalf(), 0.f))
+			|| m_arg->svali() == 0)
 		{
 			return;
 		}
@@ -200,8 +160,7 @@ void Processor::AssignOperator(si16 op)
 
 		stringstream operators;
 		string originalStr = m_arg->nStream.str();
-		m_arg->nStream.str("");
-		m_arg->nStream.clear();
+		m_arg->resetStream();
 
 		if (m_arg->nType & ARG_NUMBER_INVERSE)
 		{
@@ -245,14 +204,14 @@ void Processor::AssignOperator(si16 op)
 			m_arguments[OS_FIRST_NUM].nType ^= ARG_NUMBER_RESULT;
 		}
 
-		if (m_arg->nType == ARG_UNDEFINED && m_prevArg && m_prevArg->nType & ARG_OPERATOR)
+		if (!m_arg->isInitialized() && m_prevArg && m_prevArg->nType & ARG_OPERATOR)
 		{
 			m_text.pop_back();
-			PassInputAsOperator(m_prevArg, op);
+			m_prevArg->applyOperator(op);
 		}
 		else
 		{
-			if (m_arg->nType == ARG_UNDEFINED)
+			if (!m_arg->isInitialized())
 			{
 				AssignNumber(Inputs::Number_0);
 			}
@@ -269,43 +228,12 @@ void Processor::AssignOperator(si16 op)
 			}
 
 			m_prevArg->applyStream(m_bIsDecimal);
-
-			PassInputAsOperator(m_arg, op);
+			m_arg->applyOperator(op);
 			
 			if (m_argIdx >= OS_MAX_ARG_INDEX)
 			{
 				m_lastError = ProcessResult();
-
-				if (m_lastError == Error::OPERATION_SUCESSFUL)
-				{
-					MF_ASSERT_MSG(m_argIdx == OS_FIRST_OP, "Something wrong on ProcessResult !");
-
-					m_text.clear();
-
-					if (m_arguments[OS_FIRST_NUM].nType & ARG_NUMBER_INVERSE)
-					{
-						m_text += k_open_parenthesis;
-					}
-
-					m_text += m_arguments[OS_FIRST_NUM].str();
-					m_arguments.resize(OS_MAX_ARG_COUNT);
-
-					ValidateStreamAndText(&m_arguments[OS_FIRST_NUM], &m_text);
-				}
-				else
-				{
-					switch (m_lastError)
-					{
-					case Processor::OPERATION_EXCEPTION_DIV_ZERO:
-						Clear();
-						m_text = k_exceptionMsgDivZero;
-						return;
-					case Processor::OPERATION_EXCEPTION_DIV_ZERO_INF:
-						Clear();
-						m_text = k_exceptionMsgDivZeroInf;
-						return;
-					}
-				}
+				MF_ASSERT_MSG(m_argIdx == OS_FIRST_OP, "Something wrong on ProcessResult !");
 			}
 			
 			NextArgument();
@@ -313,18 +241,10 @@ void Processor::AssignOperator(si16 op)
 
 		switch (op)
 		{
-		case Inputs::Op_Multiplication:
-			m_text += k_op_mulplication;
-			break;
-		case Inputs::Op_Division:
-			m_text += k_op_division;
-			break;
-		case Inputs::Op_Addition:
-			m_text += k_op_addition;
-			break;
-		case Inputs::Op_Subtraction:
-			m_text += k_op_subtraction;
-			break;
+		case Inputs::Op_Multiplication:	m_text += k_op_mulplication; break;
+		case Inputs::Op_Division:		m_text += k_op_division; break;
+		case Inputs::Op_Addition:		m_text += k_op_addition; break;
+		case Inputs::Op_Subtraction:	m_text += k_op_subtraction; break;
 		default:
 			break;
 		}
@@ -354,7 +274,7 @@ void Processor::EraseBack()
 		return;
 	}
 
-	if (m_arg->nType == ARG_UNDEFINED)
+	if (!m_arg->isInitialized())
 	{
 		PrevArgument();
 
@@ -374,8 +294,7 @@ void Processor::EraseBack()
 	MF_ASSERT(m_arg->nStream.tellp() > 0);
 
 	string originalStr = m_arg->nStream.str();
-	m_arg->nStream.str("");
-	m_arg->nStream.clear();
+	m_arg->resetStream();
 
 	char c = originalStr.back();
 	if (c == k_op_point)
@@ -427,6 +346,9 @@ bool Processor::IsHighPriority(sbit16 op)
 
 int Processor::ProcessResult()
 {
+#define FARGUMENT_OPERATION(op)	m_arguments[leftArg].nfArg op##= m_arguments[rightArg].nfArg
+#define IARGUMENT_OPERATION(op)	m_arguments[leftArg].niArg op##= m_arguments[rightArg].niArg
+
 	int leftArg, rightArg ,opArg;
 
 	while (m_argIdx >= OS_SECOND_NUM)
@@ -452,15 +374,8 @@ int Processor::ProcessResult()
 			{
 			case ARG_OPERATOR_MULTIPLICATION:
 			{
-				if (m_bIsDecimal)
-				{
-					m_arguments[leftArg].nfArg *= m_arguments[rightArg].nfArg;
-				}
-				else
-				{
-					m_arguments[leftArg].niArg *= m_arguments[rightArg].niArg;
-				}
-
+				if (m_bIsDecimal)	FARGUMENT_OPERATION(*);
+				else				IARGUMENT_OPERATION(*);
 				break;
 			}
 			case ARG_OPERATOR_DIVISION:
@@ -474,7 +389,7 @@ int Processor::ProcessResult()
 
 				if (m_bIsDecimal)
 				{
-					m_arguments[leftArg].nfArg /= m_arguments[rightArg].nfArg;
+					FARGUMENT_OPERATION(/);
 				}
 				else
 				{
@@ -485,35 +400,21 @@ int Processor::ProcessResult()
 						return ProcessResult();
 					}
 
-					m_arguments[leftArg].niArg /= m_arguments[rightArg].niArg;
+					IARGUMENT_OPERATION(/);
 				}
 
 				break;
 			}
 			case ARG_OPERATOR_ADDITION:
 			{
-				if (m_bIsDecimal)
-				{
-					m_arguments[leftArg].nfArg += m_arguments[rightArg].nfArg;
-				}
-				else
-				{
-					m_arguments[leftArg].niArg += m_arguments[rightArg].niArg;
-				}
-
+				if (m_bIsDecimal)	FARGUMENT_OPERATION(+);
+				else				IARGUMENT_OPERATION(+);
 				break;
 			}
 			case ARG_OPERATOR_SUBTRACTION:
 			{
-				if (m_bIsDecimal)
-				{
-					m_arguments[leftArg].nfArg -= m_arguments[rightArg].nfArg;
-				}
-				else
-				{
-					m_arguments[leftArg].niArg -= m_arguments[rightArg].niArg;
-				}
-
+				if (m_bIsDecimal)	FARGUMENT_OPERATION(-);
+				else				IARGUMENT_OPERATION(-);
 				break;
 			}
 			default:
@@ -522,6 +423,16 @@ int Processor::ProcessResult()
 		}
 		catch (Error e)
 		{
+			Clear();
+
+			switch (e)
+			{
+			case Processor::OPERATION_EXCEPTION_DIV_ZERO:
+				m_text = k_exceptionMsgDivZero;
+			case Processor::OPERATION_EXCEPTION_DIV_ZERO_INF:
+				m_text = k_exceptionMsgDivZeroInf;
+			}
+
 			return e;
 		}
 
@@ -561,36 +472,20 @@ int Processor::ProcessResult()
 
 	m_arguments[OS_FIRST_NUM].applyValue();
 
-	return Error::OPERATION_SUCESSFUL;
-}
+	// fill text with remaining argument(s)
+	m_text.clear();
 
-void Processor::PassInputAsOperator(Argument* pArg, si16 op)
-{
-	pArg->nStream.str("");
-	pArg->nStream.clear();
-
-	switch (op)
+	if (m_arguments[OS_FIRST_NUM].nType & ARG_NUMBER_INVERSE)
 	{
-	case Inputs::Op_Multiplication:
-		pArg->nType = ARG_OPERATOR_MULTIPLICATION;
-		pArg->nStream << k_op_mulplication;
-		break;
-	case Inputs::Op_Division:
-		pArg->nType = ARG_OPERATOR_DIVISION;
-		pArg->nStream << k_op_division;
-		break;
-	case Inputs::Op_Addition:
-		pArg->nType = ARG_OPERATOR_ADDITION;
-		pArg->nStream << k_op_addition;
-		break;
-	case Inputs::Op_Subtraction:
-		pArg->nType = ARG_OPERATOR_SUBTRACTION;
-		pArg->nStream << k_op_subtraction;
-		break;
-	default:
-		pArg->nType = ARG_UNDEFINED;
-		break;
+		m_text += k_open_parenthesis;
 	}
+
+	m_text += m_arguments[OS_FIRST_NUM].str();
+	m_arguments.resize(OS_MAX_ARG_COUNT);
+
+	ValidateStreamAndText(&m_arguments[OS_FIRST_NUM], &m_text);
+
+	return Error::OPERATION_SUCESSFUL;
 }
 
 void Processor::ChangeArgumentsToDecimal(bool skipCurrent)
@@ -695,9 +590,14 @@ void Processor::Argument::reset(Argument* pArg)
 	{
 		nfArg = NULL;
 		nType = ARG_UNDEFINED;
-		nStream.str("");
-		nStream.clear();
+		resetStream();
 	}
+}
+
+void Processor::Argument::resetStream()
+{
+	nStream.str("");
+	nStream.clear();
 }
 
 void Processor::Argument::applyStream(bool isDecimal)
@@ -716,8 +616,7 @@ void Processor::Argument::applyStream(bool isDecimal)
 
 void Processor::Argument::applyValue()
 {
-	nStream.str("");
-	nStream.clear();
+	resetStream();
 
 	if (nType & ARG_NUMBER_DECIMAL)
 	{
@@ -729,14 +628,41 @@ void Processor::Argument::applyValue()
 	}
 }
 
+void Processor::Argument::applyOperator(si16 op)
+{
+	resetStream();
+
+	switch (op)
+	{
+	case Inputs::Op_Multiplication:
+		nType = ARG_OPERATOR_MULTIPLICATION;
+		nStream << k_op_mulplication;
+		break;
+	case Inputs::Op_Division:
+		nType = ARG_OPERATOR_DIVISION;
+		nStream << k_op_division;
+		break;
+	case Inputs::Op_Addition:
+		nType = ARG_OPERATOR_ADDITION;
+		nStream << k_op_addition;
+		break;
+	case Inputs::Op_Subtraction:
+		nType = ARG_OPERATOR_SUBTRACTION;
+		nStream << k_op_subtraction;
+		break;
+	default:
+		nType = ARG_UNDEFINED;
+		break;
+	}
+}
+
 Processor::Argument* Processor::Argument::operator=(const Argument& oth)
 {
 	nfArg = oth.nfArg;
 	niArg = oth.niArg;
 	nType = oth.nType;
 
-	nStream.str("");
-	nStream.clear();
+	resetStream();
 	nStream << oth.nStream.str();
 
 	return this;

@@ -65,10 +65,15 @@ public:
 		sbit16			nType;
 
 		void reset(Argument* pArg = nullptr);
+		void resetStream();
 		void applyStream(bool isDecimal);
 		void applyValue();
+		void applyOperator(si16 op);
 
-		string str() { return nStream.str(); }
+		inline bool		isInitialized() { return nType != ARG_UNDEFINED; }
+		inline string	str() { return nStream.str(); }
+		inline int		svali() { return atoi(nStream.str().c_str()); }
+		inline float	svalf() { return atof(nStream.str().c_str()); }
 
 		template<typename T>
 		void operator<<(T val)
@@ -99,14 +104,12 @@ private:
 	template <typename _Type>
 	void AssignValueInternal(_Type value, int decimalDigit);
 	
-	int	ProcessResult();
-
-	void PassInputAsOperator(Argument* pArg, si16 op);
-	void ChangeArgumentsToDecimal(bool skipCurrent);
-	void NextArgument();
-	void PrevArgument();
-	void ValidateStreamAndText(Argument* pArg, string* text);
-	bool IsHighPriority(sbit16 op);
+	int		ProcessResult();
+	void	ChangeArgumentsToDecimal(bool skipCurrent);
+	void	NextArgument();
+	void	PrevArgument();
+	void	ValidateStreamAndText(Argument* pArg, string* text);
+	bool	IsHighPriority(sbit16 op);
 
 private:
 	string	m_text;
