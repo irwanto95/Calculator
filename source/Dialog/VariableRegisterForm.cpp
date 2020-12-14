@@ -68,7 +68,7 @@ CString CVariableRegisterForm::VariableToString(const Variable& var)
 	CString result;
 	result.Append(var.nName);
 	result.Append(CString(":"));
-	result.Append(utils::MFCUtils::ToLPCTSTR(std::to_string(var.nDecimalDigit)));
+	result.Append(MFCUtils::ToLPCTSTR(std::to_string(var.nDecimalDigit)));
 	result.Append(CString(":"));
 	result.Append(var.nValue);
 
@@ -135,7 +135,7 @@ void CVariableRegisterForm::OnBnClickedOk()
 		}
 	}
 
-	m_variable.nName = utils::MFCUtils::ToLPCTSTR(_strName);
+	m_variable.nName = MFCUtils::ToLPCTSTR(_strName);
 
 	bool isValid = !_strName.empty()
 		&& !_strVal.empty()

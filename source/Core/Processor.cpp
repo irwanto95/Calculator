@@ -57,7 +57,7 @@ void Processor::AssignValueInternal(_Type value, int decimalDigit)
 		&& atoi(m_arg->str().c_str()) == 0 
 		&& !(m_arg->nType & ARG_NUMBER_DECIMAL))
 	{
-		if ((isDecimal && utils::MFCUtils::IsEqual(value, 0.f))
+		if ((isDecimal && equals(value, 0.f))
 			|| (!isDecimal && value == 0))
 		{
 			return;
@@ -183,7 +183,7 @@ void Processor::AssignOperator(si16 op)
 		}
 		else if (m_arg->nType & ARG_NUMBER_DECIMAL)
 		{
-			if (utils::MFCUtils::IsEqual(atof(m_arg->str().c_str()), 0.f))
+			if (equals(atof(m_arg->str().c_str()), 0.))
 			{
 				return;
 			}

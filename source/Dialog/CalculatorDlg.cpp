@@ -293,7 +293,7 @@ void CCalculatorDlg::LoadVariable()
 			memcpy(&_sstr[0], &buffer[pos], sz);
 			pos += sz;
 
-			m_listVariable.AddString(utils::MFCUtils::ToLPCTSTR(_sstr));
+			m_listVariable.AddString(MFCUtils::ToLPCTSTR(_sstr));
 		}
 
 		delete[] buffer;
