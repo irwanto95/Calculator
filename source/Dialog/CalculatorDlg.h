@@ -43,7 +43,6 @@ protected:
 	afx_msg void OnBnClickedBtnVarAdd();
 	afx_msg void OnBnClickedBtnVarDelete();
 	afx_msg void OnBnClickedBtnVarEdit();
-	afx_msg void OnLbnSelchangeListVariable();
 	afx_msg void OnLbnDblclkListVariable();
 
 // Implementation
@@ -52,14 +51,21 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+
+	static void	OnProcessorCallback(int type, void * data, void * caller);
 	
+	void	OnInitialize();
+	void	OnUpdate();
+
 	// Generated message map functions
 	DECLARE_MESSAGE_MAP()
 
 private:
+	void	InitButton();
 	void	SaveVariable();
 	void	LoadVariable();
-	void	UpdateButton();
+	void	UpdateVariable();
+
 
 protected:
 	HICON	m_hIcon;
@@ -68,5 +74,6 @@ protected:
 private:
 	Processor	m_processor;
 	CListBox	m_listVariable;
+	CListBox	m_listHistory;
 	CString		m_outputText;
 };

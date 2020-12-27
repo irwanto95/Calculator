@@ -8,6 +8,8 @@ Processor::Processor()
 
 Processor::~Processor()
 {
+	m_PACallback = nullptr;
+	m_PACaller = nullptr;
 }
 
 void Processor::AssignNumber(si16 number)
@@ -339,6 +341,12 @@ void Processor::EraseBack()
 	}
 }
 
+void Processor::SetAssignCallback(ProcessorAssignCallback* func, void* caller)
+{
+	m_PACallback = func;
+	m_PACaller = caller;
+}
+
 bool Processor::IsHighPriority(sbit16 op)
 {
 	return op & (ARG_OPERATOR_MULTIPLICATION | ARG_OPERATOR_DIVISION);
@@ -484,6 +492,11 @@ int Processor::ProcessResult()
 	m_arguments.resize(OS_MAX_ARG_COUNT);
 
 	ValidateStreamAndText(&m_arguments[OS_FIRST_NUM], &m_text);
+
+	if (m_PACallback)
+	{
+		m_PACallback(Inputs::Op_Result, (void*)&m_text, m_PACaller);
+	}
 
 	return Error::OPERATION_SUCESSFUL;
 }

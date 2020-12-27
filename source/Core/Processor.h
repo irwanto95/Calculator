@@ -19,6 +19,8 @@
 #define OS_THIRD_NUM			(OS_SECOND_OP + 1)
 #define OS_THIRD_OP				(OS_THIRD_NUM + 1)
 
+typedef void(ProcessorAssignCallback)(int type, void* data, void* caller);
+
 class Processor
 {
 	const string k_exceptionMsgDivZero		= "Divided by Zero, result : undefinition";
@@ -100,6 +102,8 @@ public:
 	const string	GetText() { return m_text; }
 	const char*		GetTextC() { return m_text.c_str(); }
 
+	void SetAssignCallback(ProcessorAssignCallback* func, void* caller);
+
 private:
 	template <typename _Type>
 	void AssignValueInternal(_Type value, int decimalDigit);
@@ -121,6 +125,9 @@ private:
 	Arguments	m_arguments;
 	
 	int			m_lastError;
+
+	ProcessorAssignCallback*	m_PACallback;
+	void*						m_PACaller;
 };
 
 #endif // !CL_PROCESSOR_H

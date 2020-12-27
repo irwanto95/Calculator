@@ -74,6 +74,7 @@ void CCalculatorDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_OUTPUT, m_outputText);
 	DDX_Control(pDX, IDC_LIST_VARIABLE, m_listVariable);
+	DDX_Control(pDX, IDC_HISTORY_LIST, m_listHistory);
 }
 
 BOOL CCalculatorDlg::PreTranslateMessage(MSG* pMsg)
@@ -85,6 +86,8 @@ BOOL CCalculatorDlg::PreTranslateMessage(MSG* pMsg)
 			return(TRUE);
 		}
 	}
+
+	OnUpdate();
 
 	return CDialogEx::PreTranslateMessage(pMsg);
 }
@@ -116,7 +119,6 @@ BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_VAR_ADD, &CCalculatorDlg::OnBnClickedBtnVarAdd)
 	ON_BN_CLICKED(IDC_BTN_VAR_DELETE, &CCalculatorDlg::OnBnClickedBtnVarDelete)
 	ON_BN_CLICKED(IDC_BTN_VAR_EDIT, &CCalculatorDlg::OnBnClickedBtnVarEdit)
-	ON_LBN_SELCHANGE(IDC_LIST_VARIABLE, &CCalculatorDlg::OnLbnSelchangeListVariable)
 	ON_LBN_DBLCLK(IDC_LIST_VARIABLE, &CCalculatorDlg::OnLbnDblclkListVariable)
 END_MESSAGE_MAP()
 
@@ -147,26 +149,16 @@ BOOL CCalculatorDlg::OnInitDialog()
 		}
 	}
 
-	CString appTitle, tmp;
-	ASSERT(tmp.LoadString(IDS_APP_NAME));
-	
-	appTitle.Append(tmp);
-	appTitle.Append(L" - ver ");
-	ASSERT(tmp.LoadString(IDS_APP_VERSION));
-	
-	appTitle.Append(tmp);
-	SetWindowText(appTitle);
-
-	LoadVariable();
-	UpdateButton();
-
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	// TODO: Add extra initialization here
+	/* Load accelerator for keyboard control
+	*/
 	m_hAccel = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_ACCELERATOR));
+
+	OnInitialize();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -218,6 +210,53 @@ void CCalculatorDlg::OnPaint()
 HCURSOR CCalculatorDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+void CCalculatorDlg::OnInitialize()
+{
+	CString appTitle, tmp;
+	ASSERT(tmp.LoadString(IDS_APP_NAME));
+
+	appTitle.Append(tmp);
+	appTitle.Append(L" - ver ");
+	ASSERT(tmp.LoadString(IDS_APP_VERSION));
+
+	appTitle.Append(tmp);
+	SetWindowText(appTitle);
+
+	LoadVariable();
+	InitButton();
+
+	m_processor.SetAssignCallback(&CCalculatorDlg::OnProcessorCallback, this);
+}
+
+void CCalculatorDlg::OnUpdate()
+{
+	UpdateVariable();
+}
+
+void CCalculatorDlg::OnProcessorCallback(int type, void * data, void * caller)
+{
+	MF_ASSERT(caller);
+
+	CCalculatorDlg* obj = static_cast<CCalculatorDlg*>(caller);
+
+	if (type == Inputs::Op_Result)
+	{
+		std::string text = *static_cast<std::string*>(data);
+		obj->m_listHistory.AddString(MFCUtils::ToLPCTSTR(text));
+	}
+}
+
+void CCalculatorDlg::InitButton()
+{
+	/* History
+	*/
+	CheckRadioButton(IDC_HISTORY_USE_ADD, IDC_HISTORY_USE_REPLACE, IDC_HISTORY_USE_ADD);
+
+	/* Variable
+	*/
+	UpdateVariable();
 }
 
 void CCalculatorDlg::SaveVariable()
@@ -302,7 +341,7 @@ void CCalculatorDlg::LoadVariable()
 	file.close();
 }
 
-void CCalculatorDlg::UpdateButton()
+void CCalculatorDlg::UpdateVariable()
 {
 	if (m_listVariable.GetCurSel() != LB_ERR)
 	{
@@ -450,7 +489,6 @@ void CCalculatorDlg::OnBnClickedBtnVarAdd()
 		m_listVariable.AddString(CVariableRegisterForm::VariableToString(varReg.GetVariable()));
 
 		SaveVariable();
-		UpdateButton();
 	}
 }
 
@@ -473,7 +511,6 @@ void CCalculatorDlg::OnBnClickedBtnVarDelete()
 	}
 
 	SaveVariable();
-	UpdateButton();
 }
 
 
@@ -497,14 +534,7 @@ void CCalculatorDlg::OnBnClickedBtnVarEdit()
 		m_listVariable.SetCurSel(idx);
 
 		SaveVariable();
-		UpdateButton();
 	}
-}
-
-
-void CCalculatorDlg::OnLbnSelchangeListVariable()
-{
-	UpdateButton();
 }
 
 

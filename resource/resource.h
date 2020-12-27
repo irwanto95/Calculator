@@ -44,6 +44,11 @@
 #define IDC_TXT_VAR_VALUE               1025
 #define IDC_INPUT_VAR_NAME              1026
 #define IDC_INPUT_VAR_VALUE             1027
+#define IDC_HISTORY_LIST                1029
+#define IDC_HISTORY_BTN_CLEAR           1030
+#define IDC_GROUP_HISTORY               1031
+#define IDC_HISTORY_USE_ADD             1033
+#define IDC_HISTORY_USE_REPLACE         1034
 
 // Next default values for new objects
 // 
@@ -51,7 +56,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32800
-#define _APS_NEXT_CONTROL_VALUE         1028
+#define _APS_NEXT_CONTROL_VALUE         1034
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
