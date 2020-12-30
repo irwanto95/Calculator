@@ -6,20 +6,19 @@
 
 /*	Maximum number of argument stored before processed automatically by operator assignment
 */
-#define OS_MAX_ARG_NUMBER_COUNT (3)
-#define OS_MAX_ARG_COUNT		(OS_MAX_ARG_NUMBER_COUNT * 2)
+#define OS_MAX_NUMBER_ARG_COUNT (3)
+#define OS_MAX_ARG_COUNT		(OS_MAX_NUMBER_ARG_COUNT * 2)
 #define OS_MAX_ARG_INDEX		(OS_MAX_ARG_COUNT - 1)
 #define OS_FIRST_ARG			(0)
-#define OS_SECOND_ARG			(OS_FIRST_ARG + 1)
-#define OS_THIRD_ARG			(OS_SECOND_ARG + 1)
 #define OS_FIRST_NUM			(OS_FIRST_ARG)
 #define OS_FIRST_OP				(OS_FIRST_NUM + 1)
 #define OS_SECOND_NUM			(OS_FIRST_OP + 1)
 #define OS_SECOND_OP			(OS_SECOND_NUM + 1)
 #define OS_THIRD_NUM			(OS_SECOND_OP + 1)
 #define OS_THIRD_OP				(OS_THIRD_NUM + 1)
+#define OS_OPERATOR_SHIFT		(OS_SECOND_OP - OS_FIRST_OP)
 
-typedef void(ProcessorAssignCallback)(int type, void* data, void* caller);
+typedef void(*ProcessorAssignCallback)(int type, void* data, void* caller);
 
 class Processor
 {
@@ -102,13 +101,13 @@ public:
 	const string	GetText() { return m_text; }
 	const char*		GetTextC() { return m_text.c_str(); }
 
-	void SetAssignCallback(ProcessorAssignCallback* func, void* caller);
+	void SetAssignCallback(ProcessorAssignCallback func, void* caller);
 
 private:
 	template <typename _Type>
 	void AssignValueInternal(_Type value, int decimalDigit);
 	
-	int		ProcessResult();
+	int		ProcessResult(ProcessorAssignCallback callback, void* caller);
 	void	ChangeArgumentsToDecimal(bool skipCurrent);
 	void	NextArgument();
 	void	PrevArgument();
@@ -126,7 +125,7 @@ private:
 	
 	int			m_lastError;
 
-	ProcessorAssignCallback*	m_PACallback;
+	ProcessorAssignCallback		m_PACallback;
 	void*						m_PACaller;
 };
 

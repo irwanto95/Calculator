@@ -123,7 +123,7 @@ void Processor::AssignOperator(si16 op)
 			m_arg->applyStream(m_bIsDecimal);
 		}
 
-		m_lastError = ProcessResult();
+		m_lastError = ProcessResult(m_PACallback, m_PACaller);
 		m_prevArg = NULL;
 		MF_ASSERT_MSG(m_argIdx == OS_FIRST_ARG, "Something wrong on ProcessResult !");
 	}
@@ -234,7 +234,7 @@ void Processor::AssignOperator(si16 op)
 			
 			if (m_argIdx >= OS_MAX_ARG_INDEX)
 			{
-				m_lastError = ProcessResult();
+				m_lastError = ProcessResult(m_PACallback, m_PACaller);
 				MF_ASSERT_MSG(m_argIdx == OS_FIRST_OP, "Something wrong on ProcessResult !");
 			}
 			
@@ -341,7 +341,7 @@ void Processor::EraseBack()
 	}
 }
 
-void Processor::SetAssignCallback(ProcessorAssignCallback* func, void* caller)
+void Processor::SetAssignCallback(ProcessorAssignCallback func, void* caller)
 {
 	m_PACallback = func;
 	m_PACaller = caller;
@@ -352,10 +352,15 @@ bool Processor::IsHighPriority(sbit16 op)
 	return op & (ARG_OPERATOR_MULTIPLICATION | ARG_OPERATOR_DIVISION);
 }
 
-int Processor::ProcessResult()
+int Processor::ProcessResult(ProcessorAssignCallback callback, void* caller)
 {
 #define FARGUMENT_OPERATION(op)	m_arguments[leftArg].nfArg op##= m_arguments[rightArg].nfArg
 #define IARGUMENT_OPERATION(op)	m_arguments[leftArg].niArg op##= m_arguments[rightArg].niArg
+
+	if (callback)
+	{
+		callback(Inputs::Op_Result, (void*)&m_text, caller);
+	}
 
 	int leftArg, rightArg ,opArg;
 
@@ -405,7 +410,7 @@ int Processor::ProcessResult()
 						&& !m_bIsDecimal)
 					{
 						ChangeArgumentsToDecimal(false);
-						return ProcessResult();
+						return ProcessResult(nullptr, nullptr);
 					}
 
 					IARGUMENT_OPERATION(/);
@@ -447,7 +452,7 @@ int Processor::ProcessResult()
 		m_arguments.erase(m_arguments.begin() + rightArg);
 		m_arguments.erase(m_arguments.begin() + opArg);
 
-		m_argIdx -= 2;
+		m_argIdx -= OS_OPERATOR_SHIFT;
 	}
 
 	// number or operator
@@ -493,11 +498,6 @@ int Processor::ProcessResult()
 
 	ValidateStreamAndText(&m_arguments[OS_FIRST_NUM], &m_text);
 
-	if (m_PACallback)
-	{
-		m_PACallback(Inputs::Op_Result, (void*)&m_text, m_PACaller);
-	}
-
 	return Error::OPERATION_SUCESSFUL;
 }
 
@@ -520,7 +520,7 @@ void Processor::ChangeArgumentsToDecimal(bool skipCurrent)
 				skipCurrent = false;
 			}
 
-			idx -= 2;
+			idx -= OS_OPERATOR_SHIFT;
 		}
 	}
 

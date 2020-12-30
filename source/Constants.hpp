@@ -22,5 +22,8 @@ const char k_op_subtraction = '-';
 const char k_op_point = '.';
 const char k_op_result = '=';
 
+const std::string k_op_math_operation = "x/+-";
+const std::string k_op_all = "x/+-.=";
+
 const char k_open_parenthesis = '(';
 const char k_close_parenthesis = ')';

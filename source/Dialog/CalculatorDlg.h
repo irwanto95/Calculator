@@ -76,4 +76,7 @@ private:
 	CListBox	m_listVariable;
 	CListBox	m_listHistory;
 	CString		m_outputText;
+public:
+	afx_msg void OnBnClickedHistoryBtnClear();
+	afx_msg void OnLbnDblclkHistoryList();
 };

@@ -120,6 +120,8 @@ BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_VAR_DELETE, &CCalculatorDlg::OnBnClickedBtnVarDelete)
 	ON_BN_CLICKED(IDC_BTN_VAR_EDIT, &CCalculatorDlg::OnBnClickedBtnVarEdit)
 	ON_LBN_DBLCLK(IDC_LIST_VARIABLE, &CCalculatorDlg::OnLbnDblclkListVariable)
+	ON_BN_CLICKED(IDC_HISTORY_BTN_CLEAR, &CCalculatorDlg::OnBnClickedHistoryBtnClear)
+	ON_LBN_DBLCLK(IDC_HISTORY_LIST, &CCalculatorDlg::OnLbnDblclkHistoryList)
 END_MESSAGE_MAP()
 
 
@@ -564,4 +566,71 @@ void CCalculatorDlg::OnLbnDblclkListVariable()
 	}
 	
 	ON_BUTTON_CLICKED(AssignOperator(Inputs::Op_Addition));
+}
+
+
+void CCalculatorDlg::OnBnClickedHistoryBtnClear()
+{
+	m_listHistory.ResetContent();
+}
+
+
+void CCalculatorDlg::OnLbnDblclkHistoryList()
+{
+	si16 idx = m_listHistory.GetCurSel();
+	if (idx < 0)
+		return;
+
+	CString selectedStr;
+	m_listHistory.GetText(idx, selectedStr);
+
+	int radioIdx = GetCheckedRadioButton(IDC_HISTORY_USE_ADD, IDC_HISTORY_USE_REPLACE);
+	if (radioIdx == IDC_HISTORY_USE_ADD)
+	{
+		m_processor.AssignOperator(Inputs::Op_Addition);
+	}
+	else if (radioIdx == IDC_HISTORY_USE_REPLACE)
+	{
+		m_processor.Clear();
+	}
+
+	std::string _substr, _strVal = CW2A(selectedStr);
+	int decimalIdx{ 0 }, operatorIdx{ 0 }, findOff{ 0 }, findIdx{ 0 };
+	bool isNegative;
+
+	union
+	{
+		int _i;
+		float _f;
+	} num;
+
+	while (findIdx != string::npos)
+	{	
+		isNegative = _strVal[findIdx] == k_open_parenthesis;
+		if (isNegative)
+		{
+			findOff = _strVal.find(k_close_parenthesis);
+			findIdx++;
+		}
+		else
+		{
+			findOff = _strVal.find_first_of(k_op_math_operation);
+		}
+
+		_substr = _strVal.substr(findIdx, findOff);
+		decimalIdx = _substr.find(k_op_point);
+
+		if (decimalIdx != string::npos)
+		{
+			num._f = atof(_substr.c_str());
+			m_processor.AssignValue(num._f, findOff - decimalIdx - 1);
+		}
+		else
+		{
+			num._i = atoi(_substr.c_str());
+			m_processor.AssignValue(num._i);
+		}
+
+		findIdx = isNegative ? findOff + 2 : findOff + 1;
+	}
 }

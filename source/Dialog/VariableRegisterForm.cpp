@@ -150,10 +150,10 @@ void CVariableRegisterForm::OnBnClickedOk()
 		case 0:
 		{
 			int minusIdx = _strVal.find(k_op_subtraction);
-			isValid = (minusIdx <= 0);
+			isValid = (minusIdx == 0 || minusIdx == string::npos); // valid if '-' is on the beginning or none
 			if (isValid)
 			{
-				// looking for the secont sign
+				// looking for the secont sign, invalid if found
 				isValid = _strVal.find(k_op_subtraction, minusIdx + 1) == string::npos;
 			}
 
@@ -162,7 +162,7 @@ void CVariableRegisterForm::OnBnClickedOk()
 		case 1:
 		{
 			int pointIdx = _strVal.find(k_op_point);
-			if (pointIdx > -1)
+			if (pointIdx != string::npos)
 			{
 				// looking for the secont point
 				isValid = _strVal.find(k_op_point, ++pointIdx) == string::npos;
