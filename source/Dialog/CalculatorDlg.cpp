@@ -555,7 +555,20 @@ void CCalculatorDlg::OnLbnDblclkListVariable()
 	CString selectedStr;
 	m_listVariable.GetText(idx, selectedStr);
 
-	m_processor.AssignOperator(Inputs::Op_Addition);
+	/* Logical
+	 * P = replace if (first arg but not result) or (not first arg but not initialized)
+	 * A = replace if first arg but not result
+	 * B = not first arg but not initialized
+	 * P = A or B
+	 * ~P = ~A and ~B
+	 * ~P = (not first arg or is result) and (is first arg or is initialized)
+	 * ~P = is result or is initialized
+	 */
+	if (m_processor.GetCurrentArg()->nType & Processor::ARG_NUMBER_RESULT
+		|| m_processor.GetCurrentArg()->isInitialized())
+	{
+		m_processor.AssignOperator(Inputs::Op_Addition);
+	}
 	
 	Variable var = CVariableRegisterForm::StringToVariable(selectedStr);
 	std::string strVal = CW2A(var.nValue.GetString());

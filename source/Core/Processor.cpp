@@ -46,7 +46,7 @@ void Processor::AssignValueInternal(_Type value, int decimalDigit)
 	bool isDecimal = (decimalDigit > 0);
 
 	// initial state or not decimal result argument
-	if ((!m_prevArg && !m_arg->isInitialized())
+	if ((IsFirstArg() && !m_arg->isInitialized())
 		|| (m_arg->nType & ARG_NUMBER_RESULT && m_arg->svali() != 0))
 	{
 		m_arg->reset();
@@ -267,7 +267,7 @@ void Processor::Clear()
 	m_prevArg = NULL;
 	m_arg = &m_arguments[OS_FIRST_ARG];
 
-	m_argIdx = 0;
+	m_argIdx = OS_FIRST_ARG;
 	m_bIsDecimal = false;
 
 	(*m_arg) << k_number_0;

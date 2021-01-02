@@ -6,7 +6,7 @@
 
 /*	Maximum number of argument stored before processed automatically by operator assignment
 */
-#define OS_MAX_NUMBER_ARG_COUNT (3)
+#define OS_MAX_NUMBER_ARG_COUNT (10)
 #define OS_MAX_ARG_COUNT		(OS_MAX_NUMBER_ARG_COUNT * 2)
 #define OS_MAX_ARG_INDEX		(OS_MAX_ARG_COUNT - 1)
 #define OS_FIRST_ARG			(0)
@@ -71,7 +71,7 @@ public:
 		void applyValue();
 		void applyOperator(si16 op);
 
-		inline bool		isInitialized() { return nType != ARG_UNDEFINED; }
+		inline bool		isInitialized() const { return nType != ARG_UNDEFINED; }
 		inline string	str() { return nStream.str(); }
 		inline int		svali() { return atoi(nStream.str().c_str()); }
 		inline float	svalf() { return atof(nStream.str().c_str()); }
@@ -99,6 +99,9 @@ public:
 	void Clear();
 	void EraseBack();
 
+	inline bool IsFirstArg() { return m_argIdx == OS_FIRST_ARG; }
+
+	const Argument*	GetCurrentArg() { return m_arg; }
 	const string	GetText() { return m_text; }
 	const char*		GetTextC() { return m_text.c_str(); }
 

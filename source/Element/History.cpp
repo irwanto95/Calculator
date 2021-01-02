@@ -18,12 +18,12 @@ void History::Clear()
 
 void History::Add(const string & text)
 {
-	m_board.AddString(MFCUtils::ToLPCTSTR(text));
+	m_board.InsertString(0, MFCUtils::ToLPCTSTR(text));
 }
 
 void History::Add(LPCTSTR wtext)
 {
-	m_board.AddString(wtext);
+	m_board.InsertString(0, wtext);
 }
 
 void History::SetUsage(si64 idc_idx)
