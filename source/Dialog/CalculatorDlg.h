@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Processor.h"
+#include "Element/History.h"
 
 struct Variable;
 
@@ -10,6 +11,7 @@ class CCalculatorDlg : public CDialogEx
 // Construction
 public:
 	CCalculatorDlg(CWnd* pParent = nullptr);	// standard constructor
+	~CCalculatorDlg();
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
@@ -45,6 +47,12 @@ protected:
 	afx_msg void OnBnClickedBtnVarEdit();
 	afx_msg void OnLbnDblclkListVariable();
 
+	// -- History control
+	afx_msg void OnLbnDblclkHistoryList();
+	afx_msg void OnBnClickedHistoryBtnClear();
+	afx_msg void OnBnClickedHistoryUseAdd();
+	afx_msg void OnBnClickedHistoryUseReplace();
+
 // Implementation
 protected:
 	virtual BOOL OnInitDialog();
@@ -73,10 +81,7 @@ protected:
 
 private:
 	Processor	m_processor;
+	History		m_history;
 	CListBox	m_listVariable;
-	CListBox	m_listHistory;
 	CString		m_outputText;
-public:
-	afx_msg void OnBnClickedHistoryBtnClear();
-	afx_msg void OnLbnDblclkHistoryList();
 };

@@ -94,7 +94,8 @@ public:
 	void AssignNumber(si16 number);
 	void AssignValue(int value);
 	void AssignValue(float value, int decimalDigit);
-	void AssignOperator(si16 op);
+	void AssignOperator(char c);
+	void AssignOperator(si32 op);
 	void Clear();
 	void EraseBack();
 

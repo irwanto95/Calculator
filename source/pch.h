@@ -18,6 +18,7 @@
 #include "Constants.hpp"
 
 #include "mufise/mfUtils/Utils.h"
+#include "config.h"
 
 using namespace std;
 using namespace mufise;

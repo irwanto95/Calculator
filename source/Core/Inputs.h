@@ -37,6 +37,8 @@ public:
 public:
 	Inputs() {};
 	~Inputs() {};
+
+	static si16 ConvertToOperator(char c);
 };
 
 #endif // !CL_INPUTS_H

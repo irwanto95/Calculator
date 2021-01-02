@@ -99,7 +99,13 @@ void Processor::AssignValueInternal(_Type value, int decimalDigit)
 	}
 }
 
-void Processor::AssignOperator(si16 op)
+
+void Processor::AssignOperator(char c)
+{
+	AssignOperator(Inputs::ConvertToOperator(c));
+}
+
+void Processor::AssignOperator(si32 op)
 {
 	if (op == Inputs::Op_Result)
 	{
@@ -181,7 +187,7 @@ void Processor::AssignOperator(si16 op)
 		{
 			m_arg->nStream << k_op_subtraction << originalStr;
 
-			operators << k_op_mulplication << k_op_division << k_op_addition << k_op_subtraction;
+			operators << k_op_math_operation;
 			
 			size_t opPos = m_text.find_last_of(operators.str());
 			if (opPos != string::npos)
@@ -359,6 +365,7 @@ int Processor::ProcessResult(ProcessorAssignCallback callback, void* caller)
 
 	if (callback)
 	{
+		ValidateStreamAndText(m_arg, &m_text);
 		callback(Inputs::Op_Result, (void*)&m_text, caller);
 	}
 

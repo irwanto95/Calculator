@@ -69,12 +69,16 @@ CCalculatorDlg::CCalculatorDlg(CWnd* pParent /*=nullptr*/)
 	m_outputText = m_processor.GetTextC();
 }
 
+CCalculatorDlg::~CCalculatorDlg()
+{
+}
+
 void CCalculatorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_OUTPUT, m_outputText);
 	DDX_Control(pDX, IDC_LIST_VARIABLE, m_listVariable);
-	DDX_Control(pDX, IDC_HISTORY_LIST, m_listHistory);
+	DDX_Control(pDX, IDC_HISTORY_LIST, m_history.GetBoard());
 }
 
 BOOL CCalculatorDlg::PreTranslateMessage(MSG* pMsg)
@@ -122,6 +126,8 @@ BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_LBN_DBLCLK(IDC_LIST_VARIABLE, &CCalculatorDlg::OnLbnDblclkListVariable)
 	ON_BN_CLICKED(IDC_HISTORY_BTN_CLEAR, &CCalculatorDlg::OnBnClickedHistoryBtnClear)
 	ON_LBN_DBLCLK(IDC_HISTORY_LIST, &CCalculatorDlg::OnLbnDblclkHistoryList)
+	ON_BN_CLICKED(IDC_HISTORY_USE_ADD, &CCalculatorDlg::OnBnClickedHistoryUseAdd)
+	ON_BN_CLICKED(IDC_HISTORY_USE_REPLACE, &CCalculatorDlg::OnBnClickedHistoryUseReplace)
 END_MESSAGE_MAP()
 
 
@@ -246,7 +252,7 @@ void CCalculatorDlg::OnProcessorCallback(int type, void * data, void * caller)
 	if (type == Inputs::Op_Result)
 	{
 		std::string text = *static_cast<std::string*>(data);
-		obj->m_listHistory.AddString(MFCUtils::ToLPCTSTR(text));
+		obj->m_history.Add(text);
 	}
 }
 
@@ -569,68 +575,62 @@ void CCalculatorDlg::OnLbnDblclkListVariable()
 }
 
 
-void CCalculatorDlg::OnBnClickedHistoryBtnClear()
-{
-	m_listHistory.ResetContent();
-}
-
-
+/* History control
+*/
 void CCalculatorDlg::OnLbnDblclkHistoryList()
 {
-	si16 idx = m_listHistory.GetCurSel();
-	if (idx < 0)
-		return;
-
-	CString selectedStr;
-	m_listHistory.GetText(idx, selectedStr);
-
-	int radioIdx = GetCheckedRadioButton(IDC_HISTORY_USE_ADD, IDC_HISTORY_USE_REPLACE);
-	if (radioIdx == IDC_HISTORY_USE_ADD)
+	auto argumentList = m_history.GetSelected();
+	auto usage = m_history.GetUsage();
+	switch (usage)
 	{
+	case History::HISTORY_ADD:
 		m_processor.AssignOperator(Inputs::Op_Addition);
-	}
-	else if (radioIdx == IDC_HISTORY_USE_REPLACE)
-	{
+		break;
+	case History::HISTORY_REPLACE:
 		m_processor.Clear();
+		break;
+	default:
+		break;
 	}
 
-	std::string _substr, _strVal = CW2A(selectedStr);
-	int decimalIdx{ 0 }, operatorIdx{ 0 }, findOff{ 0 }, findIdx{ 0 };
-	bool isNegative;
-
-	union
+	bool isOperator, isDecimal;
+	for (auto& arg : argumentList)
 	{
-		int _i;
-		float _f;
-	} num;
-
-	while (findIdx != string::npos)
-	{	
-		isNegative = _strVal[findIdx] == k_open_parenthesis;
-		if (isNegative)
+		isOperator = std::get<0>(arg);
+		isDecimal = std::get<2>(arg);
+		
+		if (isOperator) // is operator
 		{
-			findOff = _strVal.find(k_close_parenthesis);
-			findIdx++;
+			m_processor.AssignOperator(std::get<1>(arg)[0]);
 		}
 		else
 		{
-			findOff = _strVal.find_first_of(k_op_math_operation);
+			if (isDecimal)
+			{
+				m_processor.AssignValue(atof(std::get<1>(arg).c_str()), std::get<2>(arg));
+			}
+			else
+			{
+				m_processor.AssignValue(atoi(std::get<1>(arg).c_str()));
+			}
 		}
-
-		_substr = _strVal.substr(findIdx, findOff);
-		decimalIdx = _substr.find(k_op_point);
-
-		if (decimalIdx != string::npos)
-		{
-			num._f = atof(_substr.c_str());
-			m_processor.AssignValue(num._f, findOff - decimalIdx - 1);
-		}
-		else
-		{
-			num._i = atoi(_substr.c_str());
-			m_processor.AssignValue(num._i);
-		}
-
-		findIdx = isNegative ? findOff + 2 : findOff + 1;
 	}
+
+	m_outputText = m_processor.GetTextC();
+	UpdateData(FALSE);
+}
+
+void CCalculatorDlg::OnBnClickedHistoryBtnClear()
+{
+	m_history.Clear();
+}
+
+void CCalculatorDlg::OnBnClickedHistoryUseAdd()
+{
+	m_history.SetUsage(IDC_HISTORY_USE_ADD);
+}
+
+void CCalculatorDlg::OnBnClickedHistoryUseReplace()
+{
+	m_history.SetUsage(IDC_HISTORY_USE_REPLACE);
 }
